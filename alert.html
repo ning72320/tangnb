@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>异常数据预警 - 慢病管理 AI 智能化平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body class="bg-gray-50">
+    <div class="status-bar"></div>
+
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm">
+        <div class="flex items-center px-4 py-3">
+            <a href="home.html" class="mr-4">
+                <i class="fas fa-chevron-left text-gray-600"></i>
+            </a>
+            <h1 class="text-lg font-semibold text-gray-800">异常数据预警</h1>
+        </div>
+    </header>
+
+    <div class="page-container">
+        <!-- 紧急预警 -->
+        <div class="px-4 mb-6">
+            <div class="bg-red-50 rounded-xl p-6 border-2 border-red-200">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-red-700">血压异常预警</h2>
+                        <p class="text-sm text-red-600">检测时间：2024-03-21 10:30</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg p-4 mb-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-600">收缩压</span>
+                        <span class="text-xl font-bold text-red-500">165 mmHg</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">舒张压</span>
+                        <span class="text-xl font-bold text-red-500">95 mmHg</span>
+                    </div>
+                    <div class="mt-2 text-sm text-gray-500">
+                        正常范围：90-140/60-90 mmHg
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="flex items-start">
+                        <i class="fas fa-check-circle text-red-500 mt-1 mr-2"></i>
+                        <p class="text-red-700">请立即休息，避免剧烈运动和情绪波动</p>
+                    </div>
+                    <div class="flex items-start">
+                        <i class="fas fa-check-circle text-red-500 mt-1 mr-2"></i>
+                        <p class="text-red-700">建议服用降压药物，注意用药剂量</p>
+                    </div>
+                    <div class="flex items-start">
+                        <i class="fas fa-check-circle text-red-500 mt-1 mr-2"></i>
+                        <p class="text-red-700">如症状持续，请及时就医或拨打急救电话</p>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex space-x-4">
+                    <button class="ios-button bg-red-500 hover:bg-red-600 flex-1">
+                        <i class="fas fa-phone-alt mr-2"></i>拨打急救电话
+                    </button>
+                    <button class="ios-button bg-blue-500 hover:bg-blue-600 flex-1" onclick="showDoctorModal()">
+                        <i class="fas fa-user-md mr-2"></i>联系主治医生
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 其他预警 -->
+        <div class="px-4">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">其他预警</h3>
+            
+            <!-- 血糖预警 -->
+            <div class="ios-card bg-yellow-50">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-tint text-yellow-500"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-medium text-gray-800">血糖偏高</h4>
+                            <span class="text-sm text-gray-500">10:00</span>
+                        </div>
+                        <p class="text-sm text-gray-600">空腹血糖：7.8 mmol/L（正常范围：3.9-6.1）</p>
+                    </div>
+                </div>
+                <div class="space-y-2 text-sm text-gray-700">
+                    <p><i class="fas fa-arrow-right text-yellow-500 mr-2"></i>建议适当运动，控制碳水摄入</p>
+                    <p><i class="fas fa-arrow-right text-yellow-500 mr-2"></i>注意监测血糖变化</p>
+                </div>
+            </div>
+
+            <!-- 心率预警 -->
+            <div class="ios-card">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-heartbeat text-orange-500"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-medium text-gray-800">心率异常</h4>
+                            <span class="text-sm text-gray-500">09:15</span>
+                        </div>
+                        <p class="text-sm text-gray-600">静息心率：98次/分（正常范围：60-100）</p>
+                    </div>
+                </div>
+                <div class="space-y-2 text-sm text-gray-700">
+                    <p><i class="fas fa-arrow-right text-orange-500 mr-2"></i>建议保持情绪稳定，避免剧烈运动</p>
+                    <p><i class="fas fa-arrow-right text-orange-500 mr-2"></i>如有不适感，及时就医</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 联系医生模态框 -->
+    <div class="modal hidden" id="doctorModal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-semibold">联系主治医生</h3>
+                <button onclick="closeDoctorModal()">
+                    <i class="fas fa-times text-gray-400"></i>
+                </button>
+            </div>
+
+            <div class="mb-6">
+                <div class="flex items-center mb-4">
+                    <img src="https://via.placeholder.com/60" alt="医生头像" class="w-15 h-15 rounded-full">
+                    <div class="ml-4">
+                        <h4 class="font-medium text-gray-800">李医生</h4>
+                        <p class="text-sm text-gray-600">主任医师 | 心内科</p>
+                    </div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 mb-4">
+                    <p class="text-sm text-gray-700">
+                        <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                        医生正在线，预计等待时间：5分钟
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex space-x-4">
+                <button class="ios-button bg-gray-500 hover:bg-gray-600 flex-1" onclick="closeDoctorModal()">
+                    取消
+                </button>
+                <button class="ios-button bg-blue-500 hover:bg-blue-600 flex-1" onclick="startConsultation()">
+                    开始问诊
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+    <script>
+        // 显示联系医生模态框
+        function showDoctorModal() {
+            document.getElementById('doctorModal').classList.remove('hidden');
+        }
+
+        // 关闭联系医生模态框
+        function closeDoctorModal() {
+            document.getElementById('doctorModal').classList.add('hidden');
+        }
+
+        // 开始问诊
+        function startConsultation() {
+            closeDoctorModal();
+            window.location.href = 'online-consultation.html';
+        }
+
+        // 拨打急救电话
+        document.querySelector('.bg-red-500').addEventListener('click', () => {
+            const confirmed = confirm('确定要拨打急救电话 120 吗？');
+            if (confirmed) {
+                window.location.href = 'tel:120';
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的 - 慢病管理 AI 智能化平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #FAF5FF 0%, #FDF2F8 100%);
+        }
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .vip-card {
+            background: linear-gradient(135deg, #9333EA 0%, #7C3AED 100%);
+            border-radius: 16px;
+            padding: 16px;
+            color: white;
+        }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            background: white;
+            margin-bottom: 1px;
+            position: relative;
+        }
+        .menu-item:first-child {
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+        }
+        .menu-item:last-child {
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+            margin-bottom: 0;
+        }
+        .menu-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 12px;
+            color: #6B7280;
+        }
+        .bottom-nav-item.active {
+            color: #A78BFA;
+        }
+        .bottom-nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body class="pb-16">
+    <div class="page-container">
+        <!-- 用户信息区域 -->
+        <div class="px-4 pt-8 pb-4 text-center">
+            <div class="profile-avatar mx-auto mb-2 bg-purple-100 flex items-center justify-center">
+                <i class="fas fa-user text-purple-500 text-3xl"></i>
+            </div>
+            <h1 class="text-lg font-medium">残剑</h1>
+        </div>
+
+        <!-- VIP会员卡片 -->
+        <div class="px-4 mb-6">
+            <div class="vip-card">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-crown text-yellow-300 mr-2"></i>
+                        <span class="text-lg">VIP会员</span>
+                    </div>
+                    <button class="text-sm bg-white/20 px-4 py-1 rounded-full">
+                        了解更多 ›
+                    </button>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- 菜单列表 -->
+        <div class="px-4">
+            <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <!-- 意见反馈 -->
+                <div class="menu-item">
+                    <div class="menu-icon bg-purple-100">
+                        <i class="fas fa-comment-dots text-purple-500"></i>
+                    </div>
+                    <span class="flex-1">意见反馈</span>
+                    <div class="flex items-center text-gray-400">
+                        <span class="mr-2 text-sm">你的意见非常重要</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+
+                <!-- 账号信息 -->
+                <div class="menu-item">
+                    <div class="menu-icon bg-pink-100">
+                        <i class="fas fa-user text-pink-500"></i>
+                    </div>
+                    <span class="flex-1">账号信息</span>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+
+                <!-- 关于我们 -->
+                <div class="menu-item">
+                    <div class="menu-icon bg-yellow-100">
+                        <i class="fas fa-info-circle text-yellow-500"></i>
+                    </div>
+                    <span class="flex-1">关于我们</span>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+
+                <!-- 隐私政策 -->
+                <div class="menu-item">
+                    <div class="menu-icon bg-pink-100">
+                        <i class="fas fa-shield-alt text-pink-500"></i>
+                    </div>
+                    <span class="flex-1">隐私政策</span>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+
+                <!-- 用户协议 -->
+                <div class="menu-item">
+                    <div class="menu-icon bg-blue-100">
+                        <i class="fas fa-file-alt text-blue-500"></i>
+                    </div>
+                    <span class="flex-1">用户协议</span>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around items-center py-2">
+        <a href="home.html" class="bottom-nav-item">
+            <i class="fas fa-calendar-check"></i>
+            <span>计划</span>
+        </a>
+        <a href="knowledge.html" class="bottom-nav-item">
+            <i class="fas fa-book"></i>
+            <span>知识</span>
+        </a>
+        <a href="ai-guide.html" class="bottom-nav-item">
+            <i class="fas fa-robot"></i>
+            <span>饮食</span>
+        </a>
+        <a href="profile.html" class="bottom-nav-item active">
+            <i class="fas fa-user"></i>
+            <span>我的</span>
+        </a>
+    </div>
+</body>
+</html> 

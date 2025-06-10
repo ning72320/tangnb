@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在线问诊 - 慢病管理 AI 智能化平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body class="bg-gray-50">
+    <div class="status-bar"></div>
+
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm">
+        <div class="flex items-center px-4 py-3">
+            <a href="home.html" class="mr-4">
+                <i class="fas fa-chevron-left text-gray-600"></i>
+            </a>
+            <h1 class="text-lg font-semibold text-gray-800">在线问诊</h1>
+        </div>
+    </header>
+
+    <div class="page-container">
+        <!-- 科室选择 -->
+        <div class="px-4 mb-6">
+            <div class="flex space-x-2 overflow-x-auto">
+                <button class="px-4 py-2 rounded-full bg-blue-500 text-white whitespace-nowrap" data-dept="all">
+                    全部科室
+                </button>
+                <button class="px-4 py-2 rounded-full bg-gray-200 text-gray-700 whitespace-nowrap" data-dept="diabetes">
+                    糖尿病科
+                </button>
+                <button class="px-4 py-2 rounded-full bg-gray-200 text-gray-700 whitespace-nowrap" data-dept="cardiology">
+                    心内科
+                </button>
+                <button class="px-4 py-2 rounded-full bg-gray-200 text-gray-700 whitespace-nowrap" data-dept="endocrine">
+                    内分泌科
+                </button>
+            </div>
+        </div>
+
+        <!-- 筛选条件 -->
+        <div class="px-4 mb-6">
+            <div class="ios-card">
+                <div class="flex items-center justify-between">
+                    <div class="flex space-x-4">
+                        <select class="ios-input w-24">
+                            <option value="">职称</option>
+                            <option value="chief">主任医师</option>
+                            <option value="deputy">副主任医师</option>
+                            <option value="attending">主治医师</option>
+                        </select>
+                        <select class="ios-input w-24">
+                            <option value="">评分</option>
+                            <option value="5">5星</option>
+                            <option value="4">4星及以上</option>
+                            <option value="3">3星及以上</option>
+                        </select>
+                    </div>
+                    <button class="text-blue-500">
+                        <i class="fas fa-filter mr-1"></i>筛选
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 医生列表 -->
+        <div class="px-4">
+            <!-- 医生卡片 -->
+            <div class="ios-card">
+                <div class="flex items-start">
+                    <img src="https://via.placeholder.com/80" alt="医生头像" class="w-20 h-20 rounded-lg object-cover">
+                    <div class="flex-1 ml-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-semibold text-gray-800">李医生</h3>
+                            <span class="text-sm text-blue-500">在线</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-1">主任医师 | 糖尿病科</p>
+                        <div class="flex items-center mb-2">
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                            <span class="text-sm text-gray-500 ml-2">4.8分</span>
+                        </div>
+                        <p class="text-sm text-gray-600">擅长：糖尿病、高血压、高脂血症的诊断与治疗</p>
+                        <div class="flex items-center justify-between mt-3">
+                            <div class="text-sm text-gray-500">
+                                <span class="mr-4">问诊量：1280</span>
+                                <span>好评率：98%</span>
+                            </div>
+                            <button class="ios-button bg-blue-500 hover:bg-blue-600" onclick="showConsultationModal()">
+                                立即问诊
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ios-card">
+                <div class="flex items-start">
+                    <img src="https://via.placeholder.com/80" alt="医生头像" class="w-20 h-20 rounded-lg object-cover">
+                    <div class="flex-1 ml-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-semibold text-gray-800">张医生</h3>
+                            <span class="text-sm text-gray-500">离线</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-1">副主任医师 | 心内科</p>
+                        <div class="flex items-center mb-2">
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="far fa-star"></i>
+                            </div>
+                            <span class="text-sm text-gray-500 ml-2">4.0分</span>
+                        </div>
+                        <p class="text-sm text-gray-600">擅长：冠心病、心律失常、心力衰竭的诊断与治疗</p>
+                        <div class="flex items-center justify-between mt-3">
+                            <div class="text-sm text-gray-500">
+                                <span class="mr-4">问诊量：960</span>
+                                <span>好评率：95%</span>
+                            </div>
+                            <button class="ios-button bg-gray-500" disabled>
+                                暂不可问诊
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 问诊方式选择模态框 -->
+    <div class="modal hidden" id="consultationModal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-semibold">选择问诊方式</h3>
+                <button onclick="closeConsultationModal()">
+                    <i class="fas fa-times text-gray-400"></i>
+                </button>
+            </div>
+
+            <!-- 图文问诊 -->
+            <div class="ios-card mb-4 cursor-pointer" onclick="startConsultation('text')">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-comments text-blue-500 text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-800">图文问诊</h4>
+                            <p class="text-sm text-gray-600">支持发送图片和文字</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-medium text-blue-500">¥30</p>
+                        <p class="text-sm text-gray-500">预计10分钟内回复</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 视频问诊 -->
+            <div class="ios-card cursor-pointer" onclick="startConsultation('video')">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-video text-green-500 text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-800">视频问诊</h4>
+                            <p class="text-sm text-gray-600">面对面在线交流</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-medium text-blue-500">¥100</p>
+                        <p class="text-sm text-gray-500">15分钟视频通话</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 聊天界面 -->
+    <div class="fixed inset-0 bg-white z-50 hidden" id="chatInterface">
+        <header class="bg-white shadow-sm">
+            <div class="flex items-center px-4 py-3">
+                <button class="mr-4" onclick="closeChatInterface()">
+                    <i class="fas fa-chevron-left text-gray-600"></i>
+                </button>
+                <div>
+                    <h2 class="font-semibold text-gray-800">李医生</h2>
+                    <p class="text-sm text-gray-500">主任医师 | 糖尿病科</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex flex-col h-full pb-16">
+            <!-- 聊天内容区域 -->
+            <div class="flex-1 overflow-y-auto p-4" id="chatMessages">
+                <!-- 系统消息 -->
+                <div class="text-center mb-4">
+                    <span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">
+                        2024年3月21日 10:30
+                    </span>
+                </div>
+
+                <!-- 医生消息 -->
+                <div class="flex items-start mb-4">
+                    <img src="https://via.placeholder.com/40" alt="医生头像" class="w-10 h-10 rounded-full">
+                    <div class="ml-2 max-w-[70%]">
+                        <div class="bg-gray-100 p-3 rounded-lg">
+                            <p class="text-gray-800">您好，我是李医生，请问有什么可以帮您？</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 患者消息 -->
+                <div class="flex items-start flex-row-reverse mb-4">
+                    <img src="https://via.placeholder.com/40" alt="患者头像" class="w-10 h-10 rounded-full">
+                    <div class="mr-2 max-w-[70%]">
+                        <div class="bg-blue-500 p-3 rounded-lg">
+                            <p class="text-white">医生您好，我最近血糖有点偏高，想咨询一下。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 输入区域 -->
+            <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-2">
+                <div class="flex items-center">
+                    <button class="p-2 text-gray-600">
+                        <i class="fas fa-image"></i>
+                    </button>
+                    <input type="text" class="flex-1 ios-input mx-2" placeholder="请输入消息...">
+                    <button class="ios-button bg-blue-500 hover:bg-blue-600 px-4">
+                        发送
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+    <script>
+        // 切换科室
+        const deptButtons = document.querySelectorAll('[data-dept]');
+        deptButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                deptButtons.forEach(btn => {
+                    btn.classList.remove('bg-blue-500', 'text-white');
+                    btn.classList.add('bg-gray-200', 'text-gray-700');
+                });
+                button.classList.remove('bg-gray-200', 'text-gray-700');
+                button.classList.add('bg-blue-500', 'text-white');
+            });
+        });
+
+        // 显示问诊方式选择
+        function showConsultationModal() {
+            document.getElementById('consultationModal').classList.remove('hidden');
+        }
+
+        // 关闭问诊方式选择
+        function closeConsultationModal() {
+            document.getElementById('consultationModal').classList.add('hidden');
+        }
+
+        // 开始问诊
+        function startConsultation(type) {
+            closeConsultationModal();
+            if (type === 'text') {
+                document.getElementById('chatInterface').classList.remove('hidden');
+            } else {
+                // 处理视频问诊
+                utils.showToast('正在连接视频...', 'info');
+            }
+        }
+
+        // 关闭聊天界面
+        function closeChatInterface() {
+            document.getElementById('chatInterface').classList.add('hidden');
+        }
+    </script>
+</body>
+</html> 

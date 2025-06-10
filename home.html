@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页 - 慢病管理 AI 智能化平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <style>
+        .date-circle {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        .date-circle.active {
+            background-color: #A78BFA;
+            color: white;
+        }
+        .date-circle.inactive {
+            color: #9CA3AF;
+        }
+        .exercise-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 12px;
+            color: #6B7280;
+        }
+        .bottom-nav-item.active {
+            color: #A78BFA;
+        }
+        .bottom-nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        body {
+            background: linear-gradient(135deg, #FAF5FF 0%, #FDF2F8 100%);
+        }
+    </style>
+</head>
+<body class="pb-16">
+    <div class="page-container">
+        <div class="px-4 py-6">
+            <div class="text-lg font-medium mb-2">星期二 6月10日</div>
+            <div class="text-2xl font-bold mb-6">健康管理计划</div>
+
+            <!-- 日期导航 -->
+            <div class="flex justify-between mb-6">
+                <div class="text-center">
+                    <div class="text-sm text-gray-500 mb-2">一</div>
+                    <div class="date-circle inactive">9</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-sm text-gray-500 mb-2">二</div>
+                    <div class="date-circle active">10</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-sm text-gray-500 mb-2">今天</div>
+                    <div class="date-circle">11</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-sm text-gray-500 mb-2">四</div>
+                    <div class="date-circle">12</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-sm text-gray-500 mb-2">五</div>
+                    <div class="date-circle inactive">13</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-sm text-gray-500 mb-2">六</div>
+                    <div class="date-circle inactive">14</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-sm text-gray-500 mb-2">日</div>
+                    <div class="date-circle inactive">15</div>
+                </div>
+            </div>
+
+            <!-- 今日任务卡片 -->
+            <div class="exercise-card mb-6">
+                <div class="p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="text-lg font-medium mb-2">第19天·健康管理计划</div>
+                        </div>
+                        <a href="record.html" class="bg-purple-500 text-white px-6 py-2 rounded-full hover:bg-purple-600 transition">
+                            开始
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI健康助手建议 -->
+            <div class="mb-6">
+                <div class="flex items-center gap-2 mb-4">
+                    <i class="fas fa-robot text-purple-500"></i>
+                    <h2 class="text-lg font-medium">AI健康助手建议</h2>
+                </div>
+                <div class="space-y-3">
+                    <!-- AI建议卡片 -->
+                    <div class="bg-white rounded-xl p-4 shadow-sm">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-utensils text-purple-500 mt-1"></i>
+                            <div>
+                                <div class="text-gray-700">根据您的【阴虚体质】和当前血糖，推荐早餐试试山药小米粥（生津养胃）</div>
+                                <a href="#" class="text-purple-500 text-sm mt-1 inline-block">查看食谱 →</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-4 shadow-sm">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-spa text-purple-500 mt-1"></i>
+                            <div>
+                                <div class="text-gray-700">您附近【仁心中医馆】的"晨间调理套餐"（含经络拍打+降糖茶饮）今日有折扣</div>
+                                <a href="#" class="text-purple-500 text-sm mt-1 inline-block">预约服务 →</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-4 shadow-sm">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-fire text-purple-500 mt-1"></i>
+                            <div>
+                                <div class="text-gray-700">您本次餐后血糖偏高，推荐预约【康养堂】的"脾胃调理艾灸"，改善消化吸收</div>
+                                <a href="#" class="text-purple-500 text-sm mt-1 inline-block">立即预约 →</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-4 shadow-sm">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-moon text-purple-500 mt-1"></i>
+                            <div>
+                                <div class="text-gray-700">昨日血糖波动较大？【安心堂】的"安神足浴包"可助眠稳糖</div>
+                                <a href="#" class="text-purple-500 text-sm mt-1 inline-block">一键下单，明日送达 →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around items-center py-2">
+        <a href="home.html" class="bottom-nav-item active">
+            <i class="fas fa-calendar-check"></i>
+            <span>计划</span>
+        </a>
+        <a href="knowledge.html" class="bottom-nav-item">
+            <i class="fas fa-book"></i>
+            <span>知识</span>
+        </a>
+        <a href="ai-guide.html" class="bottom-nav-item">
+            <i class="fas fa-robot"></i>
+            <span>饮食</span>
+        </a>
+        <a href="profile.html" class="bottom-nav-item">
+            <i class="fas fa-user"></i>
+            <span>我的</span>
+        </a>
+    </div>
+
+    <script>
+        // 获取当前日期
+        function updateDate() {
+            const now = new Date();
+            const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+            const weekday = weekdays[now.getDay()];
+            const month = now.getMonth() + 1;
+            const date = now.getDate();
+            
+            document.querySelector('.text-lg').textContent = 
+                `星期${weekday} ${month}月${date}日`;
+        }
+
+        // 页面加载时更新日期
+        document.addEventListener('DOMContentLoaded', updateDate);
+    </script>
+</body>
+</html> 

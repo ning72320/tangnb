@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基础问诊 - 慢病管理 AI 智能化平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm fixed top-0 left-0 right-0 z-10">
+        <div class="flex items-center justify-between px-4 py-3">
+            <div class="flex items-center">
+                <button onclick="history.back()" class="mr-4">
+                    <i class="fas fa-arrow-left text-gray-600"></i>
+                </button>
+                <span class="text-gray-800 font-medium">基础问诊</span>
+            </div>
+            <div class="text-sm text-gray-500">
+                <span id="currentStep">1</span>/<span id="totalSteps">7</span>
+            </div>
+        </div>
+        <!-- 进度条 -->
+        <div class="h-1 bg-gray-100">
+            <div id="progressBar" class="h-full bg-gradient-to-r from-purple-500 to-purple-600 transition-all duration-300" style="width: 14.28%"></div>
+        </div>
+    </header>
+
+    <div class="page-container pt-16 pb-20 px-4">
+        <!-- 对话容器 -->
+        <div id="chatContainer" class="space-y-6 pb-20">
+            <!-- AI 欢迎语 -->
+            <div class="flex items-start space-x-3 mt-4 opacity-0 transform translate-y-4 transition-all duration-500" id="welcome">
+                <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-robot text-white"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="bg-white rounded-2xl p-4 shadow-sm relative">
+                        <div class="absolute left-0 top-4 transform -translate-x-2">
+                            <div class="w-2 h-2 rotate-45 bg-white"></div>
+                        </div>
+                        <p class="text-gray-800">您好！我是您的 AI 健康助手。接下来，我会通过几个简单的问题了解您的基本情况，以便为您提供更好的健康管理服务。</p>
+                        <p class="text-gray-800 mt-2">准备好了吗？我们开始吧！</p>
+                        <button onclick="startQuestionnaire()" class="mt-4 w-full bg-purple-500 text-white rounded-xl py-3 hover:bg-purple-600 transition-colors">
+                            开始问答
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 问题配置
+        const questions = [
+            {
+                id: 'diagnosisDate',
+                type: 'date',
+                question: '请问您是什么时候被诊断为糖尿病的？',
+                placeholder: '选择诊断日期'
+            },
+            {
+                id: 'diabetesType',
+                type: 'radio',
+                question: '您的糖尿病类型是？',
+                options: [
+                    { value: '1', label: '1型糖尿病' },
+                    { value: '2', label: '2型糖尿病' },
+                    { value: '3', label: '妊娠糖尿病' },
+                    { value: '4', label: '其他类型' }
+                ]
+            },
+            {
+                id: 'medication',
+                type: 'checkbox',
+                question: '您目前的用药情况是？（可多选）',
+                options: [
+                    { value: 'insulin', label: '注射胰岛素' },
+                    { value: 'metformin', label: '二甲双胍' },
+                    { value: 'dpp4', label: 'DPP-4抑制剂' },
+                    { value: 'other', label: '其他口服降糖药' },
+                    { value: 'none', label: '暂未用药' }
+                ]
+            },
+            {
+                id: 'insulinDetails',
+                type: 'conditional',
+                condition: (answers) => answers.medication && answers.medication.includes('insulin'),
+                question: '请告诉我您的胰岛素使用情况：',
+                subQuestions: [
+                    {
+                        id: 'insulinFrequency',
+                        type: 'select',
+                        question: '每日注射次数',
+                        options: [
+                            { value: '1', label: '1次/天' },
+                            { value: '2', label: '2次/天' },
+                            { value: '3', label: '3次/天' },
+                            { value: '4', label: '4次/天' },
+                            { value: 'pump', label: '使用胰岛素泵' }
+                        ]
+                    },
+                    {
+                        id: 'insulinType',
+                        type: 'checkbox',
+                        question: '胰岛素类型（可多选）',
+                        options: [
+                            { value: 'fast', label: '速效胰岛素' },
+                            { value: 'long', label: '长效胰岛素' },
+                            { value: 'premixed', label: '预混胰岛素' }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 'glucoseTestFreq',
+                type: 'radio',
+                question: '您平均每天测量血糖的次数是？',
+                options: [
+                    { value: '0', label: '不测量' },
+                    { value: '1', label: '1-2次' },
+                    { value: '2', label: '3-4次' },
+                    { value: '3', label: '4次以上' }
+                ]
+            },
+            {
+                id: 'complications',
+                type: 'checkbox',
+                question: '是否存在以下并发症？（可多选）',
+                options: [
+                    { value: 'none', label: '暂无并发症' },
+                    { value: 'eye', label: '糖尿病视网膜病变' },
+                    { value: 'kidney', label: '糖尿病肾病' },
+                    { value: 'nerve', label: '糖尿病神经病变' },
+                    { value: 'foot', label: '糖尿病足' }
+                ]
+            }
+        ];
+
+        let currentQuestionIndex = -1;
+        const answers = {};
+        
+        // 显示欢迎消息
+        setTimeout(() => {
+            document.getElementById('welcome').classList.remove('opacity-0', 'transform', 'translate-y-4');
+        }, 100);
+
+        function startQuestionnaire() {
+            showNextQuestion();
+        }
+
+        function showNextQuestion() {
+            currentQuestionIndex++;
+            updateProgress();
+
+            if (currentQuestionIndex >= questions.length) {
+                showCompletion();
+                return;
+            }
+
+            const question = questions[currentQuestionIndex];
+            
+            // 检查条件性问题
+            if (question.type === 'conditional') {
+                if (!question.condition(answers)) {
+                    showNextQuestion();
+                    return;
+                }
+            }
+
+            const questionElement = createQuestionElement(question);
+            addToChatContainer(questionElement);
+        }
+
+        function createQuestionElement(question) {
+            const div = document.createElement('div');
+            div.className = 'flex items-start space-x-3 opacity-0 transform translate-y-4 transition-all duration-500';
+            
+            let inputHtml = '';
+            if (question.type === 'date') {
+                inputHtml = `
+                    <input type="date" class="w-full p-3 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none" 
+                           placeholder="${question.placeholder}">
+                `;
+            } else if (question.type === 'radio') {
+                inputHtml = question.options.map(option => `
+                    <label class="flex items-center p-3 rounded-xl border border-gray-200 hover:border-purple-500 cursor-pointer">
+                        <input type="radio" name="${question.id}" value="${option.value}" class="text-purple-500">
+                        <span class="ml-2">${option.label}</span>
+                    </label>
+                `).join('');
+            } else if (question.type === 'checkbox') {
+                inputHtml = question.options.map(option => `
+                    <label class="flex items-center p-3 rounded-xl border border-gray-200 hover:border-purple-500 cursor-pointer">
+                        <input type="checkbox" name="${question.id}" value="${option.value}" class="text-purple-500">
+                        <span class="ml-2">${option.label}</span>
+                    </label>
+                `).join('');
+            } else if (question.type === 'select') {
+                inputHtml = `
+                    <select class="w-full p-3 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none">
+                        ${question.options.map(option => `
+                            <option value="${option.value}">${option.label}</option>
+                        `).join('')}
+                    </select>
+                `;
+            } else if (question.type === 'conditional') {
+                inputHtml = question.subQuestions.map(subQ => {
+                    return `
+                        <div class="mb-4">
+                            <h4 class="text-gray-700 mb-2">${subQ.question}</h4>
+                            ${createQuestionElement(subQ).innerHTML}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            div.innerHTML = `
+                <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-robot text-white"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="bg-white rounded-2xl p-4 shadow-sm relative">
+                        <div class="absolute left-0 top-4 transform -translate-x-2">
+                            <div class="w-2 h-2 rotate-45 bg-white"></div>
+                        </div>
+                        <p class="text-gray-800 mb-4">${question.question}</p>
+                        <div class="space-y-2">
+                            ${inputHtml}
+                        </div>
+                        <button onclick="submitAnswer()" class="mt-4 w-full bg-purple-500 text-white rounded-xl py-3 hover:bg-purple-600 transition-colors">
+                            继续
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            return div;
+        }
+
+        function addToChatContainer(element) {
+            const container = document.getElementById('chatContainer');
+            container.appendChild(element);
+            setTimeout(() => {
+                element.classList.remove('opacity-0', 'transform', 'translate-y-4');
+            }, 100);
+            scrollToBottom();
+        }
+
+        function submitAnswer() {
+            const question = questions[currentQuestionIndex];
+            const answer = collectAnswer(question);
+            
+            // 显示用户回答
+            showUserAnswer(answer, question);
+            
+            // 保存答案
+            answers[question.id] = answer;
+            
+            // 显示下一个问题
+            showNextQuestion();
+        }
+
+        function collectAnswer(question) {
+            if (question.type === 'date') {
+                return document.querySelector(`input[type="date"]`).value;
+            } else if (question.type === 'radio') {
+                const selected = document.querySelector(`input[name="${question.id}"]:checked`);
+                return selected ? selected.value : null;
+            } else if (question.type === 'checkbox') {
+                return Array.from(document.querySelectorAll(`input[name="${question.id}"]:checked`))
+                    .map(cb => cb.value);
+            } else if (question.type === 'select') {
+                return document.querySelector(`select`).value;
+            } else if (question.type === 'conditional') {
+                const subAnswers = {};
+                question.subQuestions.forEach(subQ => {
+                    subAnswers[subQ.id] = collectAnswer(subQ);
+                });
+                return subAnswers;
+            }
+        }
+
+        function showUserAnswer(answer, question) {
+            let answerText = '';
+            if (Array.isArray(answer)) {
+                answerText = answer.map(value => {
+                    const option = question.options.find(opt => opt.value === value);
+                    return option ? option.label : value;
+                }).join('、');
+            } else if (typeof answer === 'object') {
+                answerText = Object.entries(answer).map(([key, value]) => {
+                    const subQ = question.subQuestions.find(q => q.id === key);
+                    if (!subQ) return '';
+                    return `${subQ.question}: ${Array.isArray(value) ? value.join('、') : value}`;
+                }).join('<br>');
+            } else {
+                const option = question.options && question.options.find(opt => opt.value === answer);
+                answerText = option ? option.label : answer;
+            }
+
+            const userAnswer = document.createElement('div');
+            userAnswer.className = 'flex items-start space-x-3 justify-end opacity-0 transform translate-y-4 transition-all duration-500';
+            userAnswer.innerHTML = `
+                <div class="flex-1 text-right">
+                    <div class="inline-block bg-purple-500 text-white rounded-2xl p-3">
+                        <p>${answerText}</p>
+                    </div>
+                </div>
+                <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-user text-gray-500 text-sm"></i>
+                </div>
+            `;
+            
+            addToChatContainer(userAnswer);
+        }
+
+        function showCompletion() {
+            const completion = document.createElement('div');
+            completion.className = 'flex items-start space-x-3 opacity-0 transform translate-y-4 transition-all duration-500';
+            completion.innerHTML = `
+                <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-robot text-white"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="bg-white rounded-2xl p-4 shadow-sm relative">
+                        <div class="absolute left-0 top-4 transform -translate-x-2">
+                            <div class="w-2 h-2 rotate-45 bg-white"></div>
+                        </div>
+                        <p class="text-gray-800 mb-4">感谢您的配合！我已经记录了您的基本情况。接下来，我会为您制定个性化的健康管理方案。</p>
+                        <button onclick="window.location.href='home.html'" class="w-full bg-purple-500 text-white rounded-xl py-3 hover:bg-purple-600 transition-colors">
+                            返回首页
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            addToChatContainer(completion);
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            document.getElementById('currentStep').textContent = currentQuestionIndex + 1;
+        }
+
+        function scrollToBottom() {
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+    </script>
+</body>
+</html> 

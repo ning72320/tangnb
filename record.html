@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>记录数据 - 慢病管理 AI 智能化平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #FAF5FF 0%, #FDF2F8 100%);
+        }
+        .task-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+        .task-card:hover {
+            transform: translateY(-2px);
+        }
+        .task-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .task-icon.blood-sugar {
+            background: #EDE9FE;
+            color: #8B5CF6;
+        }
+        .task-icon.diet {
+            background: #ECFDF5;
+            color: #10B981;
+        }
+        .task-icon.exercise {
+            background: #EFF6FF;
+            color: #3B82F6;
+        }
+        .task-icon.blood-pressure {
+            background: #FEF2F2;
+            color: #EF4444;
+        }
+        .task-icon.medication {
+            background: #FCE7F3;
+            color: #EC4899;
+        }
+        .task-count {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: #F3F4F6;
+            color: #6B7280;
+        }
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 12px;
+            color: #6B7280;
+        }
+        .bottom-nav-item.active {
+            color: #A78BFA;
+        }
+        .bottom-nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        /* 对话框样式 */
+        .dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 50;
+        }
+        .dialog-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 24px 24px 0 0;
+            padding: 24px;
+            transform: translateY(100%);
+            transition: transform 0.3s;
+        }
+        .dialog.active {
+            display: block;
+        }
+        .dialog.active .dialog-content {
+            transform: translateY(0);
+        }
+        .ai-message {
+            background: #F3F4F6;
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 16px;
+            max-width: 80%;
+        }
+        .user-message {
+            background: #A78BFA;
+            color: white;
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 16px;
+            margin-left: auto;
+            max-width: 80%;
+        }
+        .mt-4 {
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body class="pb-16">
+    <div class="page-container px-4 py-6">
+        <!-- 日期选择 -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-xl font-medium">今日记录</h1>
+            <input type="date" class="input-field w-auto" value="2024-01-23">
+        </div>
+
+        <!-- 任务列表 -->
+        <div class="space-y-4">
+            <!-- 血糖记录任务 -->
+            <div class="task-card p-4" onclick="openDialog('bloodSugar')">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="task-icon blood-sugar">
+                            <i class="fas fa-tint"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-medium">血糖记录</h3>
+                                <span class="task-count">已记录3次</span>
+                            </div>
+                            <p class="text-sm text-gray-500">点击记录血糖数据</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+            </div>
+
+            <!-- 饮食记录任务 -->
+            <div class="task-card p-4" onclick="openDialog('diet')">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="task-icon diet">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-medium">饮食记录</h3>
+                                <span class="task-count">已记录1餐</span>
+                            </div>
+                            <p class="text-sm text-gray-500">点击记录饮食情况</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+            </div>
+
+            <!-- 运动记录任务 -->
+            <div class="task-card p-4" onclick="openDialog('exercise')">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="task-icon exercise">
+                            <i class="fas fa-running"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-medium">运动记录</h3>
+                                <span class="task-count">已记录0次</span>
+                            </div>
+                            <p class="text-sm text-gray-500">点击记录运动情况</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+            </div>
+
+            <!-- 血压记录任务 -->
+            <div class="task-card p-4" onclick="openDialog('bloodPressure')">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="task-icon blood-pressure">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-medium">血压记录</h3>
+                                <span class="task-count">已记录2次</span>
+                            </div>
+                            <p class="text-sm text-gray-500">点击记录血压数据</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+            </div>
+
+            <!-- 用药记录任务 -->
+            <div class="task-card p-4" onclick="openDialog('medication')">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="task-icon medication">
+                            <i class="fas fa-pills"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-medium">用药记录</h3>
+                                <span class="task-count">已记录1次</span>
+                            </div>
+                            <p class="text-sm text-gray-500">点击记录用药情况</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI助手对话框 -->
+    <div class="dialog" id="recordDialog">
+        <div class="dialog-content">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-2">
+                    <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                        <i class="fas fa-robot text-purple-500"></i>
+                    </div>
+                    <h2 class="text-lg font-medium">AI健康助手</h2>
+                </div>
+                <button onclick="closeDialog()" class="text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- 对话内容区域 -->
+            <div class="dialog-messages mb-4" style="height: 300px; overflow-y: auto;">
+                <div class="ai-message">
+                    您好！我是您的AI健康助手。让我来帮您记录数据，您可以直接说出数值，我来帮您录入。
+                </div>
+            </div>
+
+            <!-- 语音输入区域 -->
+            <div class="flex items-center gap-4">
+                <button id="voiceInput" class="flex-1 bg-purple-500 text-white py-3 px-4 rounded-full flex items-center justify-center gap-2">
+                    <i class="fas fa-microphone"></i>
+                    <span>按住说话</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around items-center py-2">
+        <a href="home.html" class="bottom-nav-item">
+            <i class="fas fa-calendar-check"></i>
+            <span>计划</span>
+        </a>
+        <a href="knowledge.html" class="bottom-nav-item">
+            <i class="fas fa-book"></i>
+            <span>知识</span>
+        </a>
+        <a href="ai-guide.html" class="bottom-nav-item">
+            <i class="fas fa-robot"></i>
+            <span>饮食</span>
+        </a>
+        <a href="profile.html" class="bottom-nav-item">
+            <i class="fas fa-user"></i>
+            <span>我的</span>
+        </a>
+    </div>
+
+    <script>
+        // 模拟存储的用户记录数据
+        const userRecords = {
+            diet: {
+                breakfast: {
+                    time: '08:30',
+                    content: '一碗燕麦粥，一个水煮蛋，一片全麦面包'
+                },
+                lunch: null,
+                dinner: null,
+                snacks: null
+            }
+        };
+
+        // 对话框控制
+        function openDialog(type) {
+            const dialog = document.getElementById('recordDialog');
+            dialog.classList.add('active');
+            
+            const messagesDiv = dialog.querySelector('.dialog-messages');
+            
+            if (type === 'diet') {
+                // 显示已记录的饮食信息和下一步引导
+                let messages = '<div class="ai-message">欢迎回来！让我们继续记录今天的饮食情况。</div>';
+                
+                // 显示已记录的信息
+                messages += '<div class="ai-message mt-4">您今天已经记录的饮食有：<br>';
+                messages += `✓ 早餐 (${userRecords.diet.breakfast.time})<br>`;
+                messages += `&nbsp;&nbsp;&nbsp;&nbsp;${userRecords.diet.breakfast.content}</div>`;
+                
+                // 引导记录下一餐
+                messages += '<div class="ai-message mt-4">请问您要记录午餐还是晚餐呢？<br>';
+                messages += '您可以说"记录午餐"或"记录晚餐"，我来帮您记录。</div>';
+                
+                messagesDiv.innerHTML = messages;
+            } else {
+                // 其他类型的记录保持原有的引导语
+                const messages = {
+                    bloodSugar: '请告诉我您的血糖值。比如说空腹血糖7.2或午餐后血糖8.1',
+                    exercise: '请告诉我您的运动情况。比如说上午散步半小时',
+                    bloodPressure: '请告诉我您的血压值。比如说血压120/80',
+                    medication: '请告诉我您的用药情况。比如说早上服用二甲双胍一片'
+                };
+                messagesDiv.innerHTML = '<div class="ai-message">' + messages[type] + '</div>';
+            }
+        }
+
+        function closeDialog() {
+            const dialog = document.getElementById('recordDialog');
+            dialog.classList.remove('active');
+        }
+
+        // 语音输入控制
+        const voiceButton = document.getElementById('voiceInput');
+        let isRecording = false;
+
+        voiceButton.addEventListener('mousedown', () => {
+            isRecording = true;
+            voiceButton.innerHTML = '<i class="fas fa-microphone-slash"></i><span>正在录音...</span>';
+            voiceButton.classList.add('bg-red-500');
+        });
+
+        voiceButton.addEventListener('mouseup', () => {
+            if (isRecording) {
+                isRecording = false;
+                voiceButton.innerHTML = '<i class="fas fa-microphone"></i><span>按住说话</span>';
+                voiceButton.classList.remove('bg-red-500');
+                
+                // 模拟用户输入显示（这里模拟用户说"记录午餐"的场景）
+                const messagesDiv = document.querySelector('.dialog-messages');
+                const currentContent = messagesDiv.innerHTML;
+                messagesDiv.innerHTML = currentContent + 
+                    '<div class="user-message">记录午餐</div>' +
+                    '<div class="ai-message">好的，请告诉我您午餐吃了什么？<br>您可以这样说："午餐12点吃的红烧排骨、青菜和米饭"</div>';
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+        });
+
+        // 更新任务卡片状态
+        function updateTaskStatus() {
+            const dietCard = document.querySelector('[onclick="openDialog(\'diet\')"]');
+            const statusIcon = dietCard.querySelector('.task-icon');
+            const description = dietCard.querySelector('.text-gray-500');
+            
+            // 如果已经记录了早餐，更新卡片状态
+            if (userRecords.diet.breakfast) {
+                statusIcon.style.background = '#10B981';
+                description.textContent = '已记录早餐，待记录午餐和晚餐';
+            }
+        }
+
+        // 页面加载时更新状态
+        document.addEventListener('DOMContentLoaded', updateTaskStatus);
+    </script>
+</body>
+</html> 

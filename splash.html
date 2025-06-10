@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>启动 - 慢病管理 AI 智能化平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body class="bg-blue-50 min-h-screen flex flex-col items-center justify-center">
+    <div class="status-bar"></div>
+    
+    <!-- Logo区域 -->
+    <div class="text-center mb-8">
+        <div class="w-24 h-24 mx-auto mb-4 relative">
+            <div class="absolute inset-0 bg-blue-500 rounded-full flex items-center justify-center">
+                <i class="fas fa-heartbeat text-white text-4xl"></i>
+            </div>
+            <div class="absolute inset-0 bg-blue-500 rounded-full animate-ping opacity-75"></div>
+        </div>
+        <h1 class="text-2xl font-bold text-blue-600 mb-2">慢病管理</h1>
+        <p class="text-gray-600">AI 智能化平台</p>
+    </div>
+
+    <!-- 加载进度条 -->
+    <div class="w-64 mb-8">
+        <div class="progress-bar">
+            <div class="progress-bar-fill" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟加载进度
+        let progress = 0;
+        const progressBar = document.querySelector('.progress-bar-fill');
+        
+        const interval = setInterval(() => {
+            progress += 2;
+            progressBar.style.width = `${progress}%`;
+            
+            if (progress >= 100) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 500);
+            }
+        }, 50);
+    </script>
+</body>
+</html> 

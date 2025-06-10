@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI指导 - 慢病管理 AI 智能化平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #FAF5FF 0%, #FDF2F8 100%);
+        }
+        .ai-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .ai-agent-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 12px;
+            color: #6B7280;
+        }
+        .bottom-nav-item.active {
+            color: #A78BFA;
+        }
+        .bottom-nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        .recommendation-tag {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="pb-16">
+    <div class="page-container">
+        <div class="px-4 py-6">
+            <!-- AI营养师建议 -->
+            <div class="mb-8">
+                <div class="ai-card">
+                    <div class="p-4 bg-gradient-to-r from-green-50 to-emerald-50">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="ai-agent-avatar bg-green-100">
+                                <i class="fas fa-utensils text-green-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-medium">AI营养师</h2>
+                                <p class="text-sm text-gray-500">基于您的体质和血糖数据分析</p>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="bg-white rounded-xl p-4">
+                                <div class="flex justify-between items-start mb-3">
+                                    <span class="recommendation-tag bg-green-50 text-green-600">今日饮食建议</span>
+                                    <span class="text-xs text-gray-400">更新于 10:30</span>
+                                </div>
+                                <p class="text-gray-700 mb-3">根据您的血糖监测数据，建议今日：</p>
+                                <ul class="space-y-2 text-gray-600 text-sm">
+                                    <li class="flex items-center gap-2">
+                                        <i class="fas fa-check text-green-500"></i>
+                                        早餐搭配全麦面包+煮鸡蛋，控制碳水摄入
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <i class="fas fa-check text-green-500"></i>
+                                        午餐可选择糙米饭+清炒时蔬，适量添加优质蛋白
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <i class="fas fa-exclamation-circle text-yellow-500"></i>
+                                        建议晚餐在18:30前完成，避免夜间血糖波动
+                                    </li>
+                                </ul>
+                                <button class="mt-4 text-green-600 text-sm">查看详细食谱 →</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI运动教练建议 -->
+            <div class="mb-8">
+                <div class="ai-card">
+                    <div class="p-4 bg-gradient-to-r from-blue-50 to-indigo-50">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="ai-agent-avatar bg-blue-100">
+                                <i class="fas fa-running text-blue-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-medium">AI运动教练</h2>
+                                <p class="text-sm text-gray-500">根据您的身体状况定制</p>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="bg-white rounded-xl p-4">
+                                <div class="flex justify-between items-start mb-3">
+                                    <span class="recommendation-tag bg-blue-50 text-blue-600">运动建议</span>
+                                    <span class="text-xs text-gray-400">更新于 09:15</span>
+                                </div>
+                                <div class="flex items-center gap-2 mb-3">
+                                    <div class="text-2xl font-semibold text-blue-600">25</div>
+                                    <div class="text-sm text-gray-500">分钟<br>建议运动时长</div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="flex items-center gap-3 bg-blue-50 rounded-lg p-3">
+                                        <i class="fas fa-walking text-blue-500"></i>
+                                        <div>
+                                            <div class="font-medium">晨间散步</div>
+                                            <div class="text-sm text-gray-500">15分钟，保持中等强度</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3 bg-blue-50 rounded-lg p-3">
+                                        <i class="fas fa-yoga text-blue-500"></i>
+                                        <div>
+                                            <div class="font-medium">太极八式</div>
+                                            <div class="text-sm text-gray-500">10分钟，注意放松身心</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="mt-4 text-blue-600 text-sm">查看动作示范 →</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI生活助理建议 -->
+            <div class="mb-8">
+                <div class="ai-card">
+                    <div class="p-4 bg-gradient-to-r from-purple-50 to-pink-50">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="ai-agent-avatar bg-purple-100">
+                                <i class="fas fa-heart text-purple-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-medium">AI生活助理</h2>
+                                <p class="text-sm text-gray-500">为您的健康生活保驾护航</p>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="bg-white rounded-xl p-4">
+                                <div class="flex justify-between items-start mb-3">
+                                    <span class="recommendation-tag bg-purple-50 text-purple-600">生活建议</span>
+                                    <span class="text-xs text-gray-400">更新于 11:45</span>
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="flex items-start gap-3">
+                                        <i class="fas fa-clock text-purple-500 mt-1"></i>
+                                        <div>
+                                            <div class="font-medium mb-1">作息提醒</div>
+                                            <p class="text-sm text-gray-600">今晚建议22:30前入睡，保证充足睡眠有助于稳定血糖</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <i class="fas fa-tint text-purple-500 mt-1"></i>
+                                        <div>
+                                            <div class="font-medium mb-1">水分摄入</div>
+                                            <p class="text-sm text-gray-600">已饮水1000ml，距离目标还需1000ml，记得适时补充水分</p>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <button class="mt-4 text-purple-600 text-sm">设置提醒 →</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around items-center py-2">
+        <a href="home.html" class="bottom-nav-item">
+            <i class="fas fa-calendar-check"></i>
+            <span>计划</span>
+        </a>
+        <a href="knowledge.html" class="bottom-nav-item">
+            <i class="fas fa-book"></i>
+            <span>知识</span>
+        </a>
+        <a href="ai-guide.html" class="bottom-nav-item active">
+            <i class="fas fa-robot"></i>
+            <span>饮食</span>
+        </a>
+        <a href="profile.html" class="bottom-nav-item">
+            <i class="fas fa-user"></i>
+            <span>我的</span>
+        </a>
+    </div>
+</body>
+</html> 

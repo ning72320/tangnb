@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康知识 - 慢病管理 AI 智能化平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #FAF5FF 0%, #FDF2F8 100%);
+        }
+        .knowledge-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .category-tag {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            background-color: #F3E8FF;
+            color: #9333EA;
+        }
+        .video-duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 12px;
+            color: #6B7280;
+        }
+        .bottom-nav-item.active {
+            color: #A78BFA;
+        }
+        .bottom-nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body class="pb-16">
+    <div class="page-container">
+        <!-- 内容区域 -->
+        <div class="px-4 py-6">
+            <!-- 推荐阅读 -->
+            <div class="mb-8">
+                <h2 class="text-lg font-medium mb-4">今日推荐</h2>
+                <div class="knowledge-card">
+                    <div class="bg-purple-100 w-full h-48 flex items-center justify-center">
+                        <i class="fas fa-utensils text-purple-500 text-4xl"></i>
+                    </div>
+                    <div class="p-4">
+                        <span class="category-tag mb-2 inline-block">饮食调理</span>
+                        <h3 class="text-lg font-medium mb-2">糖尿病患者的饮食新观念：这些食物搭配助您稳糖</h3>
+                        <p class="text-gray-500 text-sm mb-3">探讨最新研究发现的食物搭配方法，帮助糖尿病患者更好地控制血糖...</p>
+                        <div class="flex items-center text-sm text-gray-400">
+                            <i class="fas fa-eye mr-1"></i>
+                            <span class="mr-4">2,356</span>
+                            <i class="fas fa-thumbs-up mr-1"></i>
+                            <span>328</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 视频课程 -->
+            <div class="mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-medium">视频课程</h2>
+                    <a href="#" class="text-purple-500 text-sm">查看全部</a>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="knowledge-card">
+                        <div class="relative">
+                            <div class="bg-purple-100 w-full h-24 flex items-center justify-center">
+                                <i class="fas fa-running text-purple-500 text-2xl"></i>
+                            </div>
+                            <span class="video-duration">12:30</span>
+                        </div>
+                        <div class="p-3">
+                            <h3 class="text-sm font-medium mb-1">居家运动指南：适合高血压患者的晨练方案</h3>
+                            <div class="flex items-center text-xs text-gray-400">
+                                <i class="fas fa-play-circle mr-1"></i>
+                                <span>1,892次播放</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="knowledge-card">
+                        <div class="relative">
+                            <div class="bg-purple-100 w-full h-24 flex items-center justify-center">
+                                <i class="fas fa-spa text-purple-500 text-2xl"></i>
+                            </div>
+                            <span class="video-duration">08:45</span>
+                        </div>
+                        <div class="p-3">
+                            <h3 class="text-sm font-medium mb-1">中医穴位按摩：改善糖尿病足部循环</h3>
+                            <div class="flex items-center text-xs text-gray-400">
+                                <i class="fas fa-play-circle mr-1"></i>
+                                <span>2,156次播放</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 文章列表 -->
+            <div class="mb-8">
+                <h2 class="text-lg font-medium mb-4">最新文章</h2>
+                <div class="space-y-4">
+                    <div class="knowledge-card p-4">
+                        <div class="flex gap-3">
+                            <div class="w-20 h-20 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-heart text-purple-500 text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <span class="category-tag mb-2 inline-block">疾病防治</span>
+                                <h3 class="text-base font-medium mb-1">高血压患者如何科学监测血压？这些误区要避免</h3>
+                                <div class="flex items-center text-xs text-gray-400">
+                                    <span class="mr-2">10分钟阅读</span>
+                                    <span>2天前</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="knowledge-card p-4">
+                        <div class="flex gap-3">
+                            <div class="w-20 h-20 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-running text-purple-500 text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <span class="category-tag mb-2 inline-block">运动指导</span>
+                                <h3 class="text-base font-medium mb-1">适合糖尿病人的6个居家运动，强身又稳糖</h3>
+                                <div class="flex items-center text-xs text-gray-400">
+                                    <span class="mr-2">8分钟阅读</span>
+                                    <span>3天前</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="knowledge-card p-4">
+                        <div class="flex gap-3">
+                            <div class="w-20 h-20 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-utensils text-purple-500 text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <span class="category-tag mb-2 inline-block">饮食调理</span>
+                                <h3 class="text-base font-medium mb-1">秋季养生：高血压患者的饮食调养方案</h3>
+                                <div class="flex items-center text-xs text-gray-400">
+                                    <span class="mr-2">12分钟阅读</span>
+                                    <span>4天前</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 热门话题 -->
+            <div class="mb-8">
+                <h2 class="text-lg font-medium mb-4">热门话题</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="knowledge-card p-4 bg-gradient-to-br from-purple-50 to-pink-50">
+                        <i class="fas fa-heart text-purple-500 mb-2"></i>
+                        <h3 class="text-sm font-medium mb-1">血压管理</h3>
+                        <p class="text-xs text-gray-500">38,529人关注</p>
+                    </div>
+                    <div class="knowledge-card p-4 bg-gradient-to-br from-purple-50 to-pink-50">
+                        <i class="fas fa-apple-alt text-purple-500 mb-2"></i>
+                        <h3 class="text-sm font-medium mb-1">健康饮食</h3>
+                        <p class="text-xs text-gray-500">42,156人关注</p>
+                    </div>
+                    <div class="knowledge-card p-4 bg-gradient-to-br from-purple-50 to-pink-50">
+                        <i class="fas fa-running text-purple-500 mb-2"></i>
+                        <h3 class="text-sm font-medium mb-1">科学运动</h3>
+                        <p class="text-xs text-gray-500">35,782人关注</p>
+                    </div>
+                    <div class="knowledge-card p-4 bg-gradient-to-br from-purple-50 to-pink-50">
+                        <i class="fas fa-brain text-purple-500 mb-2"></i>
+                        <h3 class="text-sm font-medium mb-1">心理健康</h3>
+                        <p class="text-xs text-gray-500">29,463人关注</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around items-center py-2">
+        <a href="home.html" class="bottom-nav-item">
+            <i class="fas fa-calendar-check"></i>
+            <span>计划</span>
+        </a>
+        <a href="knowledge.html" class="bottom-nav-item active">
+            <i class="fas fa-book"></i>
+            <span>知识</span>
+        </a>
+        <a href="ai-guide.html" class="bottom-nav-item">
+            <i class="fas fa-robot"></i>
+            <span>饮食</span>
+        </a>
+        <a href="profile.html" class="bottom-nav-item">
+            <i class="fas fa-user"></i>
+            <span>我的</span>
+        </a>
+    </div>
+</body>
+</html> 

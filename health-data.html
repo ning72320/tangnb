@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康数据录入 - 慢病管理 AI 智能化平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body class="bg-gray-50">
+    <div class="status-bar"></div>
+
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm">
+        <div class="flex items-center px-4 py-3">
+            <a href="home.html" class="mr-4">
+                <i class="fas fa-chevron-left text-gray-600"></i>
+            </a>
+            <h1 class="text-lg font-semibold text-gray-800">健康数据录入</h1>
+        </div>
+    </header>
+
+    <div class="page-container">
+        <!-- 数据类型选择区 -->
+        <div class="px-4 mb-6 overflow-x-auto">
+            <div class="flex space-x-2 whitespace-nowrap">
+                <button class="px-4 py-2 rounded-full bg-blue-500 text-white" data-type="blood-pressure">
+                    血压
+                </button>
+                <button class="px-4 py-2 rounded-full bg-gray-200 text-gray-700" data-type="blood-sugar">
+                    血糖
+                </button>
+                <button class="px-4 py-2 rounded-full bg-gray-200 text-gray-700" data-type="weight">
+                    体重
+                </button>
+                <button class="px-4 py-2 rounded-full bg-gray-200 text-gray-700" data-type="steps">
+                    运动步数
+                </button>
+                <button class="px-4 py-2 rounded-full bg-gray-200 text-gray-700" data-type="diet">
+                    饮食记录
+                </button>
+            </div>
+        </div>
+
+        <!-- 数据录入表单区 -->
+        <div class="px-4">
+            <!-- 血压录入表单 -->
+            <form id="bloodPressureForm" class="ios-card">
+                <div class="form-group">
+                    <label class="form-label">收缩压 (mmHg)</label>
+                    <input type="number" class="ios-input" placeholder="请输入收缩压" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">舒张压 (mmHg)</label>
+                    <input type="number" class="ios-input" placeholder="请输入舒张压" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">心率 (次/分)</label>
+                    <input type="number" class="ios-input" placeholder="请输入心率" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">测量时间</label>
+                    <input type="datetime-local" class="ios-input" required>
+                </div>
+                <button type="submit" class="ios-button w-full">保存</button>
+            </form>
+
+            <!-- 血糖录入表单 -->
+            <form id="bloodSugarForm" class="ios-card hidden">
+                <div class="form-group">
+                    <label class="form-label">血糖值 (mmol/L)</label>
+                    <input type="number" step="0.1" class="ios-input" placeholder="请输入血糖值" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">测量时间</label>
+                    <select class="ios-input" required>
+                        <option value="">请选择测量时间</option>
+                        <option value="before-breakfast">早餐前</option>
+                        <option value="after-breakfast">早餐后</option>
+                        <option value="before-lunch">午餐前</option>
+                        <option value="after-lunch">午餐后</option>
+                        <option value="before-dinner">晚餐前</option>
+                        <option value="after-dinner">晚餐后</option>
+                        <option value="before-sleep">睡前</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">测量部位</label>
+                    <select class="ios-input" required>
+                        <option value="">请选择测量部位</option>
+                        <option value="finger">指血</option>
+                        <option value="vein">静脉血</option>
+                    </select>
+                </div>
+                <button type="submit" class="ios-button w-full">保存</button>
+            </form>
+
+            <!-- 体重录入表单 -->
+            <form id="weightForm" class="ios-card hidden">
+                <div class="form-group">
+                    <label class="form-label">体重 (kg)</label>
+                    <input type="number" step="0.1" class="ios-input" placeholder="请输入体重" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">测量日期</label>
+                    <input type="date" class="ios-input" required>
+                </div>
+                <button type="submit" class="ios-button w-full">保存</button>
+            </form>
+
+            <!-- 运动步数录入表单 -->
+            <form id="stepsForm" class="ios-card hidden">
+                <div class="form-group">
+                    <label class="form-label">步数</label>
+                    <input type="number" class="ios-input" placeholder="请输入步数" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">运动日期</label>
+                    <input type="date" class="ios-input" required>
+                </div>
+                <button type="submit" class="ios-button w-full">保存</button>
+            </form>
+
+            <!-- 饮食记录表单 -->
+            <form id="dietForm" class="ios-card hidden">
+                <div class="form-group">
+                    <label class="form-label">食物名称</label>
+                    <input type="text" class="ios-input" placeholder="请输入食物名称" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">食物分量</label>
+                    <div class="flex space-x-2">
+                        <input type="number" class="ios-input flex-1" placeholder="请输入数量" required>
+                        <select class="ios-input w-24" required>
+                            <option value="g">克</option>
+                            <option value="ml">毫升</option>
+                            <option value="份">份</option>
+                            <option value="个">个</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">用餐时间</label>
+                    <select class="ios-input" required>
+                        <option value="">请选择用餐时间</option>
+                        <option value="breakfast">早餐</option>
+                        <option value="lunch">午餐</option>
+                        <option value="dinner">晚餐</option>
+                        <option value="snack">加餐</option>
+                    </select>
+                </div>
+                <button type="button" class="text-blue-500 mb-4" onclick="addFoodItem()">
+                    <i class="fas fa-plus mr-1"></i>添加更多食物
+                </button>
+                <button type="submit" class="ios-button w-full">保存</button>
+            </form>
+        </div>
+
+        <!-- 历史记录区 -->
+        <div class="px-4 mt-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">最近记录</h3>
+            <div class="space-y-4" id="historyList">
+                <!-- 历史记录将通过 JavaScript 动态添加 -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+    <script>
+        // 切换数据类型
+        const buttons = document.querySelectorAll('[data-type]');
+        const forms = {
+            'blood-pressure': document.getElementById('bloodPressureForm'),
+            'blood-sugar': document.getElementById('bloodSugarForm'),
+            'weight': document.getElementById('weightForm'),
+            'steps': document.getElementById('stepsForm'),
+            'diet': document.getElementById('dietForm')
+        };
+
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                // 更新按钮样式
+                buttons.forEach(btn => {
+                    btn.classList.remove('bg-blue-500', 'text-white');
+                    btn.classList.add('bg-gray-200', 'text-gray-700');
+                });
+                button.classList.remove('bg-gray-200', 'text-gray-700');
+                button.classList.add('bg-blue-500', 'text-white');
+
+                // 显示对应表单
+                const type = button.dataset.type;
+                Object.values(forms).forEach(form => form.classList.add('hidden'));
+                forms[type].classList.remove('hidden');
+
+                // 更新历史记录
+                updateHistory(type);
+            });
+        });
+
+        // 添加食物项
+        function addFoodItem() {
+            const template = `
+                <div class="form-group food-item">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="form-label">添加食物</label>
+                        <button type="button" class="text-red-500" onclick="this.closest('.food-item').remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <input type="text" class="ios-input mb-2" placeholder="请输入食物名称" required>
+                    <div class="flex space-x-2">
+                        <input type="number" class="ios-input flex-1" placeholder="请输入数量" required>
+                        <select class="ios-input w-24" required>
+                            <option value="g">克</option>
+                            <option value="ml">毫升</option>
+                            <option value="份">份</option>
+                            <option value="个">个</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            const dietForm = document.getElementById('dietForm');
+            const submitButton = dietForm.querySelector('button[type="submit"]');
+            submitButton.insertAdjacentHTML('beforebegin', template);
+        }
+
+        // 更新历史记录
+        function updateHistory(type) {
+            const historyData = {
+                'blood-pressure': [
+                    { date: '2024-03-21 08:30', systolic: 120, diastolic: 80, heart_rate: 75 },
+                    { date: '2024-03-20 08:45', systolic: 118, diastolic: 79, heart_rate: 72 }
+                ],
+                'blood-sugar': [
+                    { date: '2024-03-21 07:00', value: 5.6, time: 'before-breakfast', type: 'finger' },
+                    { date: '2024-03-20 07:15', value: 5.8, time: 'before-breakfast', type: 'finger' }
+                ]
+                // 其他类型的历史数据...
+            };
+
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+
+            if (historyData[type]) {
+                historyData[type].forEach(record => {
+                    const html = createHistoryItem(type, record);
+                    historyList.insertAdjacentHTML('beforeend', html);
+                });
+            }
+        }
+
+        // 创建历史记录项
+        function createHistoryItem(type, record) {
+            switch (type) {
+                case 'blood-pressure':
+                    return `
+                        <div class="ios-card">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="text-sm text-gray-500">${utils.formatDate(record.date)} ${utils.formatTime(record.date)}</div>
+                                    <div class="mt-1">
+                                        <span class="font-medium">${record.systolic}/${record.diastolic}</span>
+                                        <span class="text-sm text-gray-600">mmHg</span>
+                                        <span class="ml-2 text-sm text-gray-600">心率: ${record.heart_rate}</span>
+                                    </div>
+                                </div>
+                                <button class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                case 'blood-sugar':
+                    return `
+                        <div class="ios-card">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="text-sm text-gray-500">${utils.formatDate(record.date)} ${utils.formatTime(record.date)}</div>
+                                    <div class="mt-1">
+                                        <span class="font-medium">${record.value}</span>
+                                        <span class="text-sm text-gray-600">mmol/L</span>
+                                        <span class="ml-2 text-sm text-gray-600">${record.time}</span>
+                                    </div>
+                                </div>
+                                <button class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                default:
+                    return '';
+            }
+        }
+
+        // 初始化显示血压数据
+        updateHistory('blood-pressure');
+
+        // 处理表单提交
+        Object.values(forms).forEach(form => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const loading = utils.showLoading();
+                
+                try {
+                    // 模拟提交数据
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    utils.showToast('数据保存成功', 'success');
+                    form.reset();
+                } catch (error) {
+                    utils.showToast('保存失败，请重试', 'error');
+                } finally {
+                    utils.hideLoading(loading);
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
