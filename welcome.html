@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 智能问诊 - 慢病管理平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #FDF2F8 0%, #FAE8FF 100%);
+            min-height: 100vh;
+        }
+        
+        .welcome-icon {
+            width: 120px;
+            height: 120px;
+            border-radius: 30px;
+            background: white;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+        }
+
+        .welcome-text {
+            font-size: 24px;
+            line-height: 1.4;
+            text-align: center;
+            color: #1F2937;
+            max-width: 80%;
+            margin: 0 auto;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fadeInUp {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .delay-300 {
+            animation-delay: 300ms;
+        }
+    </style>
+</head>
+<body class="gradient-bg">
+    <div class="flex flex-col items-center justify-center min-h-screen p-4">
+        <!-- 图标容器 -->
+        <div class="welcome-icon flex items-center justify-center mb-8 animate-fadeInUp overflow-hidden">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- 听诊器 -->
+                <path d="M30 42C30 42 36 52 44 52C52 52 58 42 58 42" stroke="#9333EA" stroke-width="3" stroke-linecap="round"/>
+                
+                <!-- 头发 -->
+                <path d="M24 32C24 20 32 14 44 14C56 14 64 20 64 32" fill="#1F2937"/>
+                
+                <!-- 脸部 -->
+                <circle cx="44" cy="34" r="16" fill="#FDE68A"/>
+                
+                <!-- 眼睛 -->
+                <circle cx="38" cy="32" r="2" fill="#1F2937"/>
+                <circle cx="50" cy="32" r="2" fill="#1F2937"/>
+                
+                <!-- 微笑 -->
+                <path d="M40 38C40 38 42 40 44 40C46 40 48 38 48 38" stroke="#1F2937" stroke-width="1.5" stroke-linecap="round"/>
+                
+                <!-- 医生外套 -->
+                <path d="M28 48C28 48 36 58 44 58C52 58 60 48 60 48L64 80H24L28 48Z" fill="#9333EA"/>
+                
+                <!-- 医生胸牌 -->
+                <rect x="42" y="50" width="4" height="6" rx="1" fill="white"/>
+            </svg>
+        </div>
+
+        <!-- 欢迎文字 -->
+        <h1 class="welcome-text mb-12 animate-fadeInUp delay-300">
+            我将会问你几个问题来定制<br>
+            你的健康管理计划
+        </h1>
+
+        <!-- 开始按钮 -->
+        <button onclick="window.location.href='goal.html'" 
+                class="bg-purple-600 text-white px-12 py-4 rounded-full text-lg font-medium shadow-lg 
+                       hover:bg-purple-700 transition-colors duration-300 animate-fadeInUp delay-300">
+            开始评估
+        </button>
+    </div>
+
+    <script>
+        // 如果需要在页面加载时重置之前的问卷状态
+        window.onload = function() {
+            localStorage.removeItem('surveyAnswers');
+            localStorage.removeItem('questionHistory');
+            localStorage.removeItem('currentQuestionId');
+        };
+    </script>
+</body>
+</html>

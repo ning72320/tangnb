@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>问诊总结 - 慢病管理平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm fixed top-0 left-0 right-0 z-10">
+        <div class="flex items-center px-4 py-3">
+            <button onclick="window.location.href='../home.html'" class="mr-4">
+                <i class="fas fa-arrow-left text-gray-600"></i>
+            </button>
+            <span class="text-gray-800 font-medium">问诊总结</span>
+        </div>
+    </header>
+
+    <div class="page-container pt-16 pb-20 px-4">
+        <!-- AI 总结 -->
+        <div class="flex items-start space-x-3 mt-4 opacity-0 transform translate-y-4 transition-all duration-500" id="summary">
+            <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-robot text-white"></i>
+            </div>
+            <div class="flex-1">
+                <div class="bg-white rounded-2xl p-4 shadow-sm relative">
+                    <div class="absolute left-0 top-4 transform -translate-x-2">
+                        <div class="w-2 h-2 rotate-45 bg-white"></div>
+                    </div>
+                    <div id="aiSummary" class="space-y-4">
+                        <!-- AI 总结内容将通过 JavaScript 动态插入 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 建议卡片 -->
+        <div class="mt-6 space-y-4" id="recommendationsContainer">
+            <!-- 建议卡片将通过 JavaScript 动态插入 -->
+        </div>
+
+        <!-- 完成按钮 -->
+        <button onclick="window.location.href='../home.html'" class="mt-6 w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl py-4 font-medium shadow-sm hover:from-purple-600 hover:to-purple-700 transition-colors">
+            返回首页
+        </button>
+    </div>
+
+    <script>
+        window.onload = function() {
+            // 获取问卷答案
+            const answers = JSON.parse(localStorage.getItem('surveyAnswers') || '{}');
+            
+            // 生成 AI 总结
+            generateSummary(answers);
+            
+            // 显示动画
+            setTimeout(() => {
+                document.getElementById('summary').classList.remove('opacity-0', 'transform', 'translate-y-4');
+            }, 100);
+        };
+
+        function generateSummary(answers) {
+            const aiSummary = document.getElementById('aiSummary');
+            const recommendationsContainer = document.getElementById('recommendationsContainer');
+            
+            // 生成基本情况总结
+            let summaryHtml = `
+                <p class="text-lg font-medium text-gray-800">感谢您完成问诊！以下是我对您情况的分析：</p>
+                <div class="text-gray-600">
+                    <p>您于 ${new Date(answers.diagnosisDate).toLocaleDateString()} 被确诊为
+                    ${getDiabetesTypeText(answers.diabetesType)}。</p>
+                </div>
+            `;
+
+            // 用药情况总结
+            summaryHtml += `<div class="text-gray-600 mt-4">
+                <p>目前的治疗方案包括：${getMedicationSummary(answers.medication)}`;
+            
+            if (answers.medication.includes('insulin')) {
+                summaryHtml += `。您每天${getInsulinFrequency(answers.insulinDetails.frequency)}，
+                使用${getInsulinTypes(answers.insulinDetails.type)}。`;
+            }
+            summaryHtml += '</p></div>';
+
+            // 血糖监测总结
+            summaryHtml += `<div class="text-gray-600 mt-4">
+                <p>${getGlucoseTestSummary(answers.glucoseTestFreq)}</p>
+            </div>`;
+
+            // 并发症总结
+            summaryHtml += `<div class="text-gray-600 mt-4">
+                <p>${getComplicationsSummary(answers.complications)}</p>
+            </div>`;
+
+            aiSummary.innerHTML = summaryHtml;
+
+            // 生成建议卡片
+            generateRecommendations(answers, recommendationsContainer);
+        }
+
+        function getDiabetesTypeText(type) {
+            const types = {
+                '1': '1型糖尿病',
+                '2': '2型糖尿病',
+                '3': '妊娠糖尿病',
+                '4': '其他类型糖尿病'
+            };
+            return types[type] || '糖尿病';
+        }
+
+        function getMedicationSummary(medications) {
+            if (medications.includes('none')) {
+                return '目前暂未使用降糖药物';
+            }
+            
+            const medicationNames = {
+                'insulin': '胰岛素',
+                'metformin': '二甲双胍',
+                'dpp4': 'DPP-4抑制剂',
+                'other': '其他口服降糖药'
+            };
+
+            return medications.map(med => medicationNames[med]).join('、');
+        }
+
+        function getInsulinFrequency(freq) {
+            const frequencies = {
+                '1': '注射1次',
+                '2': '注射2次',
+                '3': '注射3次',
+                '4': '注射4次',
+                'pump': '使用胰岛素泵'
+            };
+            return frequencies[freq] || '规律注射';
+        }
+
+        function getInsulinTypes(types) {
+            const typeNames = {
+                'fast': '速效胰岛素',
+                'long': '长效胰岛素',
+                'premixed': '预混胰岛素'
+            };
+            return types.map(type => typeNames[type]).join('和');
+        }
+
+        function getGlucoseTestSummary(freq) {
+            const frequencies = {
+                '0': '您目前还未进行血糖监测，建议开始规律监测血糖',
+                '1': '您每天监测1-2次血糖',
+                '2': '您每天监测3-4次血糖，这是很好的监测频率',
+                '3': '您每天监测4次以上血糖，这种细致的监测对控制血糖很有帮助'
+            };
+            return frequencies[freq];
+        }
+
+        function getComplicationsSummary(complications) {
+            if (complications.includes('none')) {
+                return '目前您没有明显的糖尿病并发症，这是很好的情况。';
+            }
+
+            const complicationNames = {
+                'eye': '糖尿病视网膜病变',
+                'kidney': '糖尿病肾病',
+                'nerve': '糖尿病神经病变',
+                'foot': '糖尿病足'
+            };
+
+            return `您目前存在 ${complications.map(comp => complicationNames[comp]).join('、')} 等并发症，需要特别关注。`;
+        }
+
+        function generateRecommendations(answers, container) {
+            const recommendations = [];
+
+            // 根据不同情况生成建议
+            if (answers.glucoseTestFreq === '0') {
+                recommendations.push({
+                    icon: 'fa-chart-line',
+                    title: '开始血糖监测',
+                    content: '建议每天至少测量2次血糖，包括空腹和餐后血糖。这将帮助您更好地了解血糖变化规律。'
+                });
+            }
+
+            if (answers.medication.includes('insulin')) {
+                recommendations.push({
+                    icon: 'fa-syringe',
+                    title: '胰岛素使用建议',
+                    content: '请严格遵医嘱使用胰岛素，注意调整注射部位，保持注射时间规律。'
+                });
+            }
+
+            if (!answers.complications.includes('none')) {
+                recommendations.push({
+                    icon: 'fa-user-md',
+                    title: '定期复查',
+                    content: '建议每3个月进行一次常规检查，每年进行一次并发症筛查。'
+                });
+            }
+
+            // 添加通用建议
+            recommendations.push({
+                icon: 'fa-utensils',
+                title: '饮食建议',
+                content: '控制总热量摄入，规律进餐，少食多餐，注意营养均衡。'
+            });
+
+            recommendations.push({
+                icon: 'fa-walking',
+                title: '运动建议',
+                content: '建议每周进行3-5次中等强度运动，每次30-60分钟，运动前后要监测血糖。'
+            });
+
+            // 渲染建议卡片
+            container.innerHTML = recommendations.map(rec => `
+                <div class="bg-white rounded-2xl p-4 shadow-sm">
+                    <div class="flex items-center mb-3">
+                        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas ${rec.icon} text-purple-500"></i>
+                        </div>
+                        <h3 class="ml-3 font-medium text-gray-800">${rec.title}</h3>
+                    </div>
+                    <p class="text-gray-600">${rec.content}</p>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html> 

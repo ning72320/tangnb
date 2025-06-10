@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 智能问诊 - 慢病管理平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_purple.css">
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- Flatpickr 中文语言包 -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mobile-select@1.3.6/dist/index.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-select@1.3.6/dist/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/weui-picker@0.0.2/dist/weui-picker.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/weui-picker@0.0.2/dist/weui-picker.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/picker-wheel@0.1.7/dist/picker-wheel.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/picker-wheel@0.1.7/dist/picker-wheel.min.js"></script>
+    <style>
+        /* 自定义选择器样式 */
+        .weui-picker {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            transform: translateY(100%);
+            transition: transform .3s;
+            z-index: 1000;
+        }
+        .weui-picker.weui-picker_show {
+            transform: translateY(0);
+        }
+        .weui-picker__hd {
+            display: flex;
+            padding: 16px;
+            border-bottom: 1px solid #eee;
+            justify-content: space-between;
+        }
+        .weui-picker__action {
+            color: #7C3AED;
+            font-size: 16px;
+        }
+        .weui-picker__bd {
+            display: flex;
+            position: relative;
+            background-color: #fff;
+            height: 238px;
+            overflow: hidden;
+        }
+        .weui-picker__group {
+            flex: 1;
+            position: relative;
+            height: 100%;
+        }
+        .weui-picker__mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0 auto;
+            z-index: 3;
+            background: linear-gradient(180deg,hsla(0,0%,100%,.95),hsla(0,0%,100%,.6)),linear-gradient(0deg,hsla(0,0%,100%,.95),hsla(0,0%,100%,.6));
+            background-position: top,bottom;
+            background-size: 100% 102px;
+            background-repeat: no-repeat;
+            transform: translateZ(0);
+        }
+        .weui-picker__indicator {
+            width: 100%;
+            height: 34px;
+            position: absolute;
+            left: 0;
+            top: 102px;
+            z-index: 3;
+            background: #f7f7f7;
+        }
+        .weui-picker__content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+        .weui-picker__item {
+            padding: 0 10px;
+            height: 34px;
+            line-height: 34px;
+            text-align: center;
+            color: #000;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .picker-wheel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 16px 16px 0 0;
+            z-index: 1000;
+        }
+        .picker-wheel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #eee;
+        }
+        .picker-wheel-cancel,
+        .picker-wheel-confirm {
+            padding: 8px 16px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .picker-wheel-cancel {
+            color: #666;
+        }
+        .picker-wheel-confirm {
+            color: #7C3AED;
+        }
+        .picker-wheel-title {
+            font-size: 18px;
+            color: #333;
+        }
+        .picker-wheel-content {
+            display: flex;
+            height: 200px;
+            overflow: hidden;
+        }
+        .picker-wheel-item {
+            flex: 1;
+            text-align: center;
+            line-height: 40px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm fixed top-0 left-0 right-0 z-10">
+        <div class="flex items-center justify-between px-4 py-3">
+            <div class="flex items-center">
+                <span class="text-gray-800 font-medium">基本情况</span>
+            </div>
+            <div class="text-sm text-gray-500">
+                <span id="currentStep">1</span>/<span id="totalSteps">6</span>
+            </div>
+        </div>
+        <!-- 进度条 -->
+        <div class="h-1 bg-gray-100">
+            <div id="progressBar" class="h-full bg-gradient-to-r from-purple-500 to-purple-600 transition-all duration-500" style="width: 16.67%"></div>
+        </div>
+    </header>
+
+    <div class="page-container pt-16 pb-20 px-4">
+        <!-- AI 对话区域 -->
+        <div id="aiResponse" class="flex items-start space-x-3 mt-4 opacity-0 transform translate-y-4 transition-all duration-500">
+            <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-robot text-white"></i>
+            </div>
+            <div class="flex-1">
+                <div class="bg-white rounded-2xl p-4 shadow-sm relative">
+                    <div class="absolute left-0 top-4 transform -translate-x-2">
+                        <div class="w-2 h-2 rotate-45 bg-white"></div>
+                    </div>
+                    <div id="aiMessage"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 问题区域 -->
+        <div id="questionContainer" class="mt-6 opacity-0 transform translate-y-4 transition-all duration-500">
+        </div>
+
+        <!-- 导航按钮 -->
+        <div id="navigationButtons" class="fixed bottom-6 left-4 right-4 flex justify-between space-x-4">
+            <button onclick="goToPreviousQuestion()" id="backButton" class="flex-1 bg-gray-100 text-gray-600 rounded-xl py-3 hover:bg-gray-200 transition-colors hidden">
+                <i class="fas fa-chevron-left mr-2"></i>返回上一步
+            </button>
+            <button onclick="submitAnswer()" id="nextButton" class="flex-1 bg-purple-500 text-white rounded-xl py-3 hover:bg-purple-600 transition-colors">
+                继续
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 存储所有答案
+        let answers = JSON.parse(localStorage.getItem('surveyAnswers') || '{}');
+        let questionHistory = [];
+        let currentQuestionId = localStorage.getItem('currentQuestionId') || 'gender';
+
+        // 问题配置
+        const questions = {
+            gender: {
+                aiMessage: "首先，请告诉我您的性别",
+                type: 'image-radio',
+                options: [
+                    { value: 'male', label: '男性', image: 'male.svg' },
+                    { value: 'female', label: '女性', image: 'female.svg' }
+                ],
+                nextQuestion: 'age',
+                step: 1
+            },
+            age: {
+                aiMessage: "您的年龄是多少？年龄信息有助于我们更准确地评估您的情况",
+                type: 'number-picker',
+                min: 18,
+                max: 100,
+                unit: '岁',
+                nextQuestion: 'height',
+                step: 2
+            },
+            height: {
+                aiMessage: "您的身高是多少？身高信息有助于我们计算您的BMI指数",
+                type: 'number-picker',
+                min: 140,
+                max: 200,
+                unit: 'cm',
+                nextQuestion: 'weight',
+                step: 3
+            },
+            weight: {
+                aiMessage: "您的当前体重是多少？体重信息有助于我们计算您的BMI指数",
+                type: 'number-picker',
+                min: 30,
+                max: 150,
+                unit: 'kg',
+                nextQuestion: 'diabetesType',
+                step: 4
+            },
+            diabetesType: {
+                aiMessage: "请选择您的糖尿病类型",
+                type: 'radio',
+                options: [
+                    { value: 'type1', label: '1型糖尿病' },
+                    { value: 'type2', label: '2型糖尿病' },
+                    { value: 'gestational', label: '妊娠糖尿病' },
+                    { value: 'other', label: '其他类型' },
+                    { value: 'unknown', label: '不确定' }
+                ],
+                nextQuestion: 'medicationMethod',
+                step: 5
+            },
+            medicationMethod: {
+                aiMessage: "您目前采用什么方式控制血糖？",
+                type: 'checkbox',
+                options: [
+                    { value: 'insulin', label: '胰岛素注射' },
+                    { value: 'oral', label: '口服降糖药' },
+                    { value: 'diet', label: '饮食控制' },
+                    { value: 'exercise', label: '运动' },
+                    { value: 'none', label: '目前没有采取任何措施' }
+                ],
+                nextQuestion: 'complications',
+                step: 6
+            },
+            complications: {
+                aiMessage: "您是否有以下并发症？（可多选）",
+                type: 'checkbox',
+                options: [
+                    { value: 'retinopathy', label: '糖尿病视网膜病变' },
+                    { value: 'nephropathy', label: '糖尿病肾病' },
+                    { value: 'neuropathy', label: '糖尿病神经病变' },
+                    { value: 'cardiovascular', label: '心血管疾病' },
+                    { value: 'foot', label: '糖尿病足' },
+                    { value: 'none', label: '暂无并发症' }
+                ],
+                nextQuestion: 'complete',
+                step: 7
+            }
+        };
+
+        // 初始化页面
+        window.onload = function() {
+            // 每次刷新页面都重新开始
+            localStorage.removeItem('surveyAnswers');
+            localStorage.removeItem('questionHistory');
+            localStorage.removeItem('currentQuestionId');
+            
+            // 重置变量
+            answers = {};
+            questionHistory = [];
+            currentQuestionId = 'gender';
+
+            showQuestion(currentQuestionId);
+            setTimeout(() => {
+                document.getElementById('aiResponse').classList.remove('opacity-0', 'transform', 'translate-y-4');
+                document.getElementById('questionContainer').classList.remove('opacity-0', 'transform', 'translate-y-4');
+            }, 100);
+            updateBackButton();
+        };
+
+        function showQuestion(questionId) {
+            const question = questions[questionId];
+            if (!question) return;
+
+            // 更新进度
+            updateProgress(questionId);
+
+            // 设置 AI 消息
+            const aiMessage = document.getElementById('aiMessage');
+            aiMessage.textContent = question.aiMessage || '请回答以下问题：';
+
+            // 创建问题内容
+            const container = document.getElementById('questionContainer');
+            container.innerHTML = '';
+
+            if (question.type === 'image-radio') {
+                container.innerHTML = `
+                    <div class="grid grid-cols-2 gap-4 p-4">
+                        ${question.options.map(option => `
+                            <label class="relative cursor-pointer">
+                                <input type="radio" name="${questionId}" value="${option.value}" 
+                                       class="absolute opacity-0"
+                                       onchange="handleGenderSelect(this)"
+                                       ${answers[questionId] === option.value ? 'checked' : ''}>
+                                <div class="p-4 rounded-2xl bg-white shadow-sm transition-all duration-300
+                                          hover:shadow-md hover:border-purple-500
+                                          ${answers[questionId] === option.value ? 'border-2 border-purple-500' : 'border border-gray-200'}">
+                                    <div class="aspect-w-1 aspect-h-1 mb-4">
+                                        <img src="../../assets/images/${option.image}" 
+                                             alt="${option.label}" 
+                                             class="object-cover rounded-xl">
+                                    </div>
+                                    <div class="text-center text-lg font-medium">
+                                        ${option.label}
+                                    </div>
+                                </div>
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (question.type === 'number-picker') {
+                container.innerHTML = `
+                    <div class="bg-white rounded-2xl p-6 shadow-sm">
+                        <div class="flex flex-col items-center">
+                            <div class="text-6xl font-bold text-purple-600 mb-4">
+                                <span id="numberValue">${answers[questionId] || Math.floor((question.max + question.min) / 2)}</span>
+                                <span class="text-3xl ml-2">${question.unit}</span>
+                            </div>
+                            <input type="range" 
+                                   min="${question.min}" 
+                                   max="${question.max}" 
+                                   value="${answers[questionId] || Math.floor((question.max + question.min) / 2)}"
+                                   class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                   oninput="handleNumberInput(this)">
+                            <div class="w-full flex justify-between mt-2 text-gray-500">
+                                <span>${question.min}${question.unit}</span>
+                                <span>${question.max}${question.unit}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (question.type === 'year-month-picker') {
+                container.innerHTML = `
+                    <div class="bg-white rounded-2xl p-6 shadow-sm">
+                        <div class="flex flex-col items-center">
+                            <div id="datePickerTrigger" class="text-4xl font-bold text-purple-600 text-center cursor-pointer p-4 hover:bg-gray-50 rounded-xl transition-colors">
+                                <span id="selectedYear">----</span>年
+                                <span id="selectedMonth">--</span>月
+                                <div class="text-sm text-gray-500 mt-2">点击选择时间</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="datePickerContainer" class="fixed inset-0 bg-black bg-opacity-50 hidden">
+                        <div class="picker-wheel">
+                            <div class="picker-wheel-header">
+                                <div class="picker-wheel-cancel">取消</div>
+                                <div class="picker-wheel-title">选择诊断时间</div>
+                                <div class="picker-wheel-confirm">确定</div>
+                            </div>
+                            <div class="picker-wheel-content">
+                                <div id="yearWheel" class="picker-wheel-item"></div>
+                                <div id="monthWheel" class="picker-wheel-item"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // 获取已保存的值或默认值
+                let savedDate = answers[questionId] ? new Date(answers[questionId]) : new Date();
+                let savedYear = answers[questionId] ? savedDate.getFullYear() : new Date().getFullYear();
+                let savedMonth = answers[questionId] ? savedDate.getMonth() + 1 : new Date().getMonth() + 1;
+
+                // 更新显示
+                document.getElementById('selectedYear').textContent = savedYear;
+                document.getElementById('selectedMonth').textContent = savedMonth;
+
+                // 生成年份和月份数据
+                const currentYear = new Date().getFullYear();
+                const years = [];
+                for (let year = currentYear; year >= 1950; year--) {
+                    years.push(year + '年');
+                }
+                
+                const months = [];
+                for (let month = 1; month <= 12; month++) {
+                    months.push(month + '月');
+                }
+
+                // 初始化滚轮选择器
+                const yearWheel = new PickerWheel('#yearWheel', {
+                    data: years,
+                    defaultIndex: years.indexOf(savedYear + '年'),
+                    onChange: function(index) {
+                        const year = parseInt(years[index]);
+                        document.getElementById('selectedYear').textContent = year;
+                    }
+                });
+
+                const monthWheel = new PickerWheel('#monthWheel', {
+                    data: months,
+                    defaultIndex: savedMonth - 1,
+                    onChange: function(index) {
+                        const month = index + 1;
+                        document.getElementById('selectedMonth').textContent = month;
+                    }
+                });
+
+                // 设置点击事件
+                document.getElementById('datePickerTrigger').onclick = function() {
+                    document.getElementById('datePickerContainer').classList.remove('hidden');
+                };
+
+                document.querySelector('.picker-wheel-cancel').onclick = function() {
+                    document.getElementById('datePickerContainer').classList.add('hidden');
+                };
+
+                document.querySelector('.picker-wheel-confirm').onclick = function() {
+                    const selectedYear = parseInt(years[yearWheel.getSelectedIndex()]);
+                    const selectedMonth = monthWheel.getSelectedIndex() + 1;
+                    
+                    // 检查是否超过当前日期
+                    const selectedDate = new Date(selectedYear, selectedMonth - 1);
+                    const currentDate = new Date();
+                    
+                    if (selectedDate > currentDate) {
+                        // 如果超过当前日期，则设置为当前年月
+                        document.getElementById('selectedYear').textContent = currentYear;
+                        document.getElementById('selectedMonth').textContent = new Date().getMonth() + 1;
+                        return;
+                    }
+
+                    // 更新显示
+                    document.getElementById('selectedYear').textContent = selectedYear;
+                    document.getElementById('selectedMonth').textContent = selectedMonth;
+
+                    // 保存答案
+                    const formattedMonth = selectedMonth.toString().padStart(2, '0');
+                    answers[currentQuestionId] = `${selectedYear}-${formattedMonth}`;
+                    localStorage.setItem('surveyAnswers', JSON.stringify(answers));
+
+                    // 隐藏选择器
+                    document.getElementById('datePickerContainer').classList.add('hidden');
+                };
+
+                // 点击遮罩层关闭选择器
+                document.getElementById('datePickerContainer').onclick = function(e) {
+                    if (e.target === this) {
+                        this.classList.add('hidden');
+                    }
+                };
+            } else if (question.type === 'radio') {
+                container.innerHTML = `
+                    <div class="bg-white rounded-2xl p-4 shadow-sm">
+                        <div class="space-y-2">
+                            ${question.options.map(option => `
+                                <label class="flex items-center p-3 rounded-xl border border-gray-200 hover:border-purple-500 cursor-pointer">
+                                    <input type="radio" name="${questionId}" value="${option.value}" 
+                                           class="text-purple-500"
+                                           ${answers[questionId] === option.value ? 'checked' : ''}>
+                                    <span class="ml-2">${option.label}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (question.type === 'checkbox') {
+                container.innerHTML = `
+                    <div class="bg-white rounded-2xl p-4 shadow-sm">
+                        <div class="space-y-2">
+                            ${question.options.map(option => `
+                                <label class="flex items-center p-3 rounded-xl border border-gray-200 hover:border-purple-500 cursor-pointer">
+                                    <input type="checkbox" name="${questionId}" value="${option.value}" 
+                                           class="text-purple-500"
+                                           ${answers[questionId] && answers[questionId].includes(option.value) ? 'checked' : ''}>
+                                    <span class="ml-2">${option.label}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (question.type === 'compound') {
+                container.innerHTML = `
+                    <div class="bg-white rounded-2xl p-4 shadow-sm">
+                        ${question.questions.map(subQ => `
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2">${subQ.label}</label>
+                                ${subQ.type === 'select' ? `
+                                    <select name="${subQ.id}" class="w-full p-3 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none">
+                                        ${subQ.options.map(option => `
+                                            <option value="${option.value}" 
+                                                    ${answers[questionId] && answers[questionId][subQ.id] === option.value ? 'selected' : ''}>
+                                                ${option.label}
+                                            </option>
+                                        `).join('')}
+                                    </select>
+                                ` : `
+                                    <div class="space-y-2">
+                                        ${subQ.options.map(option => `
+                                            <label class="flex items-center p-3 rounded-xl border border-gray-200 hover:border-purple-500 cursor-pointer">
+                                                <input type="${subQ.type}" name="${subQ.id}" value="${option.value}" 
+                                                       class="text-purple-500"
+                                                       ${answers[questionId] && answers[questionId][subQ.id] && answers[questionId][subQ.id].includes(option.value) ? 'checked' : ''}>
+                                                <span class="ml-2">${option.label}</span>
+                                            </label>
+                                        `).join('')}
+                                    </div>
+                                `}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            // 显示继续按钮（除了性别选择页面）
+            const nextButton = document.getElementById('nextButton');
+            if (questionId === 'gender') {
+                nextButton.style.display = 'none';
+            } else {
+                nextButton.style.display = 'block';
+            }
+
+            // 更新返回按钮状态
+            updateBackButton();
+        }
+
+        function updateBackButton() {
+            const backButton = document.getElementById('backButton');
+            if (questionHistory.length > 0) {
+                backButton.classList.remove('hidden');
+            } else {
+                backButton.classList.add('hidden');
+            }
+        }
+
+        function goToPreviousQuestion() {
+            if (questionHistory.length > 0) {
+                const previousQuestionId = questionHistory.pop();
+                currentQuestionId = previousQuestionId;
+                
+                // 更新 localStorage
+                localStorage.setItem('currentQuestionId', currentQuestionId);
+                localStorage.setItem('questionHistory', JSON.stringify(questionHistory));
+
+                // 显示上一个问题
+                showQuestion(currentQuestionId);
+
+                // 添加动画效果
+                const aiResponse = document.getElementById('aiResponse');
+                const questionContainer = document.getElementById('questionContainer');
+                
+                aiResponse.classList.add('opacity-0', 'transform', 'translate-y-4');
+                questionContainer.classList.add('opacity-0', 'transform', 'translate-y-4');
+                
+                setTimeout(() => {
+                    aiResponse.classList.remove('opacity-0', 'transform', 'translate-y-4');
+                    questionContainer.classList.remove('opacity-0', 'transform', 'translate-y-4');
+                }, 100);
+            }
+        }
+
+        function submitAnswer() {
+            const question = questions[currentQuestionId];
+            if (!question) return;
+
+            let answer;
+
+            if (question.type === 'year-month-picker') {
+                answer = answers[currentQuestionId];
+                if (!answer) {
+                    alert('请选择诊断时间');
+                    return;
+                }
+            } else if (question.type === 'number-picker') {
+                const input = document.querySelector('input[type="range"]');
+                answer = input ? input.value : null;
+                if (!answer) {
+                    alert('请选择一个值');
+                    return;
+                }
+            } else if (question.type === 'checkbox') {
+                answer = [];
+                document.querySelectorAll(`input[name="${currentQuestionId}"]:checked`).forEach(checkbox => {
+                    answer.push(checkbox.value);
+                });
+                if (answer.length === 0) {
+                    alert('请至少选择一个选项');
+                    return;
+                }
+            } else if (question.type === 'radio') {
+                const selected = document.querySelector(`input[name="${currentQuestionId}"]:checked`);
+                answer = selected ? selected.value : null;
+                if (!answer) {
+                    alert('请选择一个选项');
+                    return;
+                }
+            }
+
+            // 保存答案
+            if (question.type !== 'year-month-picker') {
+                answers[currentQuestionId] = answer;
+                localStorage.setItem('surveyAnswers', JSON.stringify(answers));
+            }
+
+            // 保存当前问题到历史记录
+            questionHistory.push(currentQuestionId);
+            localStorage.setItem('questionHistory', JSON.stringify(questionHistory));
+
+            // 确定下一个问题
+            const nextQuestionId = question.nextQuestion;
+
+            if (nextQuestionId === 'complete') {
+                handleComplete();
+                return;
+            }
+
+            // 添加过渡动画
+            const aiResponse = document.getElementById('aiResponse');
+            const questionContainer = document.getElementById('questionContainer');
+            
+            aiResponse.classList.add('opacity-0', 'transform', 'translate-y-4');
+            questionContainer.classList.add('opacity-0', 'transform', 'translate-y-4');
+
+            setTimeout(() => {
+                // 更新当前问题ID
+                currentQuestionId = nextQuestionId;
+                localStorage.setItem('currentQuestionId', currentQuestionId);
+                
+                // 显示下一个问题
+                showQuestion(nextQuestionId);
+                
+                // 移除过渡动画类
+                setTimeout(() => {
+                    aiResponse.classList.remove('opacity-0', 'transform', 'translate-y-4');
+                    questionContainer.classList.remove('opacity-0', 'transform', 'translate-y-4');
+                }, 100);
+            }, 300);
+        }
+
+        function updateProgress(questionId) {
+            const question = questions[questionId];
+            if (!question || !question.step) return;
+            
+            // 计算总步数
+            const totalSteps = Object.values(questions).reduce((max, q) => Math.max(max, q.step || 0), 0);
+            
+            // 更新进度条
+            const progressBar = document.getElementById('progressBar');
+            const progress = (question.step / totalSteps) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            // 更新步骤文本
+            document.getElementById('currentStep').textContent = question.step;
+            document.getElementById('totalSteps').textContent = totalSteps;
+        }
+
+        // 添加性别选择的专门处理函数
+        function handleGenderSelect(radio) {
+            const answer = radio.value;
+            
+            // 保存答案
+            answers['gender'] = answer;
+            localStorage.setItem('surveyAnswers', JSON.stringify(answers));
+
+            // 保存当前问题到历史记录
+            questionHistory.push('gender');
+            localStorage.setItem('questionHistory', JSON.stringify(questionHistory));
+
+            // 添加过渡动画
+            const aiResponse = document.getElementById('aiResponse');
+            const questionContainer = document.getElementById('questionContainer');
+            
+            aiResponse.classList.add('opacity-0', 'transform', 'translate-y-4');
+            questionContainer.classList.add('opacity-0', 'transform', 'translate-y-4');
+
+            setTimeout(() => {
+                // 更新当前问题ID为年龄
+                currentQuestionId = 'age';
+                localStorage.setItem('currentQuestionId', currentQuestionId);
+                
+                // 显示年龄问题
+                showQuestion('age');
+                
+                // 移除过渡动画类
+                setTimeout(() => {
+                    aiResponse.classList.remove('opacity-0', 'transform', 'translate-y-4');
+                    questionContainer.classList.remove('opacity-0', 'transform', 'translate-y-4');
+                }, 100);
+            }, 300);
+        }
+
+        // 添加数值输入的处理函数，只更新显示值，不自动跳转
+        function handleNumberInput(input) {
+            document.getElementById('numberValue').textContent = input.value;
+            // 保存答案但不跳转
+            answers[currentQuestionId] = input.value;
+            localStorage.setItem('surveyAnswers', JSON.stringify(answers));
+        }
+
+        function handleComplete() {
+            // 保存所有问卷数据
+            const surveyData = {
+                gender: answers.gender,
+                age: answers.age,
+                height: answers.height,
+                weight: answers.weight,
+                diabetesType: answers.diabetesType,
+                medicationMethod: answers.medicationMethod,
+                complications: answers.complications
+            };
+            
+            // 可以在这里添加数据保存到服务器的逻辑
+            console.log('Survey completed:', surveyData);
+            localStorage.setItem('surveyData', JSON.stringify(surveyData));
+            
+            // 跳转到过渡页面
+            window.location.href = 'transition.html';
+        }
+    </script>
+</body>
+</html> 

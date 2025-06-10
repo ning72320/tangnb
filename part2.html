@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康管理 - 慢病管理平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <style>
+        .fade-in {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+        
+        .fade-out {
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+        .ai-message p {
+            margin-bottom: 1rem;
+        }
+        .ai-message ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .ai-message li {
+            margin-bottom: 0.5rem;
+            position: relative;
+            padding-left: 0.5rem;
+        }
+        .ai-message li::before {
+            content: "•";
+            color: #8B5CF6;
+            font-weight: bold;
+            position: absolute;
+            left: -1rem;
+        }
+        .ai-message-container {
+            background: linear-gradient(135deg, #EEF2FF 0%, #F5F3FF 100%);
+            border: 1px solid #E5E7EB;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .ai-avatar {
+            background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+            box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.3);
+        }
+        .ai-message-arrow {
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%) rotate(45deg);
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, #EEF2FF 0%, #F5F3FF 100%);
+            border-left: 1px solid #E5E7EB;
+            border-bottom: 1px solid #E5E7EB;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm fixed top-0 left-0 right-0 z-10">
+        <div class="flex items-center justify-between px-4 py-3">
+            <div class="flex items-center">
+                <span class="text-gray-800 font-medium">健康管理</span>
+            </div>
+            <div class="text-sm text-gray-500">
+                <span id="currentStep">1</span>/<span id="totalSteps">5</span>
+            </div>
+        </div>
+        <!-- 进度条 -->
+        <div class="h-1 bg-gray-100">
+            <div id="progressBar" class="h-full bg-gradient-to-r from-purple-500 to-purple-600 transition-all duration-500" style="width: 25%"></div>
+        </div>
+    </header>
+
+    <div class="page-container pt-16 pb-20 px-4">
+        <!-- AI 对话区域 -->
+        <div id="aiResponse" class="flex items-start space-x-4 mt-6">
+            <div class="ai-avatar w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-robot text-white text-xl"></i>
+            </div>
+            <div class="flex-1">
+                <div class="ai-message-container rounded-2xl p-5 relative">
+                    <div class="ai-message-arrow"></div>
+                    <div id="aiMessage" class="ai-message text-gray-700 leading-relaxed"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 问题区域 -->
+        <div id="questionContainer" class="mt-8">
+        </div>
+
+        <!-- 导航按钮 -->
+        <div id="navigationButtons" class="fixed bottom-6 left-4 right-4 flex justify-between space-x-4">
+            <button onclick="goToPreviousQuestion()" id="backButton" class="flex-1 bg-gray-100 text-gray-600 rounded-xl py-3.5 hover:bg-gray-200 transition-colors hidden">
+                <i class="fas fa-chevron-left mr-2"></i>返回上一步
+            </button>
+            <button onclick="submitAnswer()" id="nextButton" class="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl py-3.5 hover:from-purple-600 hover:to-purple-700 transition-colors shadow-lg shadow-purple-500/30">
+                继续
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 调试函数
+        function debug(message) {
+            console.log(`[DEBUG] ${message}`);
+        }
+
+        // 存储所有答案
+        // 检查是否需要重置
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('reset') === 'true') {
+            localStorage.removeItem('managementAnswers');
+            localStorage.removeItem('currentManagementQuestionId');
+            localStorage.removeItem('managementSettings');
+            answers = {};
+            currentQuestionId = 'bloodSugarMonitor';
+            debug('Reset triggered, cleared all data');
+        } else {
+            answers = JSON.parse(localStorage.getItem('managementAnswers') || '{}');
+        }
+
+        let questionHistory = [];
+        
+        // 修正问题ID
+        if (!urlParams.get('reset')) {
+            currentQuestionId = localStorage.getItem('currentManagementQuestionId');
+            if (currentQuestionId === 'mealReminder') {
+                currentQuestionId = 'medicineReminder';
+                localStorage.setItem('currentManagementQuestionId', currentQuestionId);
+            }
+            currentQuestionId = currentQuestionId || 'bloodSugarMonitor';
+        }
+
+        debug('Initial currentQuestionId: ' + currentQuestionId);
+        debug('Initial answers: ' + JSON.stringify(answers));
+
+        // 检查并修正答案中的问题ID
+        if (answers.mealReminder) {
+            answers.medicineReminder = answers.mealReminder;
+            delete answers.mealReminder;
+            localStorage.setItem('managementAnswers', JSON.stringify(answers));
+        }
+
+        // 设置默认选中项
+        function initializeDefaultAnswers(questionId) {
+            if (!answers[questionId]) {
+                const question = questions[questionId];
+                if (question.type === 'checkbox') {
+                    answers[questionId] = question.options
+                        .filter(option => option.defaultChecked)
+                        .map(option => option.value);
+                }
+            }
+        }
+
+        // 问题配置
+        const questions = {
+            bloodSugarMonitor: {
+                aiMessage: "根据您的情况，我建议您按以下时间点监测血糖。您可以根据实际情况调整：",
+                type: 'checkbox',
+                options: [
+                    { value: 'morning_empty', label: '空腹血糖（早餐前）', defaultChecked: true },
+                    { value: 'morning_after', label: '早餐后2小时', defaultChecked: true },
+                    { value: 'noon_before', label: '午餐前', defaultChecked: true },
+                    { value: 'noon_after', label: '午餐后2小时', defaultChecked: true },
+                    { value: 'evening_before', label: '晚餐前', defaultChecked: true },
+                    { value: 'evening_after', label: '晚餐后2小时', defaultChecked: true },
+                    { value: 'sleep', label: '睡前', defaultChecked: true }
+                ],
+                nextQuestion: 'mealRecord',
+                step: 1
+            },
+            mealRecord: {
+                aiMessage: "为了更好地管理血糖，建议您记录以下饮食信息。您可以根据实际情况选择：",
+                type: 'checkbox',
+                options: [
+                    { 
+                        value: 'meals', 
+                        label: '三餐记录', 
+                        defaultChecked: true 
+                    },
+                    { 
+                        value: 'snacks', 
+                        label: '加餐记录', 
+                        defaultChecked: true 
+                    }
+                ],
+                nextQuestion: 'exerciseGoal',
+                step: 2,
+                skipOption: {
+                    value: 'skip',
+                    label: '暂不需要记录饮食信息'
+                }
+            },
+            exerciseGoal: {
+                aiMessage: "规律运动对控制血糖非常重要。记录运动信息可以帮助您：\n\n1. 了解运动对血糖的影响\n2. 找到最适合您的运动方式\n3. 及时调整运动计划\n4. 预防运动性低血糖\n\n运动记录包括：运动类型、持续时间、运动强度和开始时间。您是否需要记录运动信息？",
+                type: 'radio',
+                options: [
+                    { value: 'yes', label: '是的，我需要记录运动信息' },
+                    { value: 'no', label: '暂不需要记录运动信息' }
+                ],
+                nextQuestion: 'bloodPressure',
+                step: 3
+            },
+            bloodPressure: {
+                aiMessage: "血压监测对糖尿病患者非常重要：\n\n1. 糖尿病和高血压常常同时存在\n2. 控制血压可以预防心脑血管和肾脏并发症\n3. 建议在固定时间（通常是早晨起床后、服药前）测量记录\n\n您是否需要记录血压值？",
+                type: 'radio',
+                options: [
+                    { value: 'yes', label: '是的，我需要记录血压' },
+                    { value: 'no', label: '暂不需要记录血压' }
+                ],
+                nextQuestion: 'medicationRecord',
+                step: 4
+            },
+            medicationRecord: {
+                aiMessage: "用药记录包括：\n\n• 口服药物：名称、剂量、服用时间\n• 胰岛素（如使用）：种类、剂量、注射时间和部位\n\n详细记录可帮助医生评估药效并及时调整方案。您是否需要记录用药信息？",
+                type: 'radio',
+                options: [
+                    { value: 'yes', label: '是的，我需要记录用药信息' },
+                    { value: 'no', label: '暂不需要记录用药信息' }
+                ],
+                nextQuestion: 'complete',
+                step: 5
+            }
+        };
+
+        function updateProgress(question) {
+            debug('Updating progress for step: ' + question.step);
+            const totalSteps = 5; // 更新总步数为5
+            document.getElementById('totalSteps').textContent = totalSteps;
+            document.getElementById('currentStep').textContent = question.step;
+            const progress = (question.step / totalSteps) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+        }
+
+        // 用于处理AI消息中的换行符
+        function formatAIMessage(message) {
+            return message.split('\n').map(line => {
+                if (line.trim().startsWith('1.')) {
+                    // 处理有序列表
+                    return `<ol class="list-decimal">${
+                        line.split('\n')
+                            .filter(item => item.trim())
+                            .map(item => `<li>${item.replace(/^\d+\.\s*/, '')}</li>`)
+                            .join('')
+                    }</ol>`;
+                } else if (line.trim()) {
+                    // 处理普通段落
+                    return `<p>${line}</p>`;
+                }
+                return '';
+            }).join('');
+        }
+
+        function showQuestion(questionId) {
+            debug('Showing question: ' + questionId);
+            const question = questions[questionId];
+            if (!question) {
+                debug('Question not found: ' + questionId);
+                return;
+            }
+
+            // 初始化默认选中项
+            initializeDefaultAnswers(questionId);
+
+            // 更新AI消息
+            const aiMessage = document.getElementById('aiMessage');
+            aiMessage.innerHTML = formatAIMessage(question.aiMessage);
+            debug('Set AI message: ' + question.aiMessage);
+            
+            // 更新进度
+            updateProgress(question);
+
+            // 清空并准备问题容器
+            const questionContainer = document.getElementById('questionContainer');
+            questionContainer.innerHTML = '';
+
+            // 创建选项
+            if (question.type === 'radio' || question.type === 'checkbox') {
+                debug('Creating options for type: ' + question.type);
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'space-y-3';
+
+                // 添加常规选项
+                question.options.forEach((option, index) => {
+                    debug('Creating option ' + index + ': ' + option.label);
+                    const button = document.createElement('button');
+                    const isChecked = question.type === 'radio' 
+                        ? answers[questionId] === option.value
+                        : (answers[questionId] || []).includes(option.value);
+
+                    button.className = `w-full text-left px-4 py-3 rounded-xl border transition-all duration-200 ${
+                        isChecked
+                        ? 'border-purple-500 bg-purple-50 text-purple-700' 
+                        : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                    }`;
+
+                    // 添加选择框图标
+                    const iconDiv = document.createElement('div');
+                    iconDiv.className = 'flex items-center';
+                    
+                    const icon = document.createElement('i');
+                    if (question.type === 'checkbox') {
+                        icon.className = `far ${isChecked ? 'fa-check-square' : 'fa-square'} mr-3`;
+                    } else {
+                        icon.className = `far ${isChecked ? 'fa-check-circle' : 'fa-circle'} mr-3`;
+                    }
+                    
+                    const label = document.createElement('span');
+                    label.textContent = option.label;
+
+                    iconDiv.appendChild(icon);
+                    iconDiv.appendChild(label);
+                    button.appendChild(iconDiv);
+
+                    button.onclick = () => {
+                        debug('Option clicked: ' + option.label);
+                        if (question.type === 'radio') {
+                            handleAnswer(questionId, option.value);
+                        } else {
+                            // 处理多选
+                            let currentAnswers = answers[questionId] || [];
+                            if (currentAnswers.includes(option.value)) {
+                                currentAnswers = currentAnswers.filter(v => v !== option.value);
+                            } else {
+                                currentAnswers.push(option.value);
+                            }
+                            handleAnswer(questionId, currentAnswers);
+                        }
+                    };
+                    
+                    optionsDiv.appendChild(button);
+                });
+
+                // 如果有跳过选项，添加分隔线和跳过选项
+                if (question.skipOption) {
+                    debug('Adding skip option');
+                    const divider = document.createElement('div');
+                    divider.className = 'my-4 border-t border-gray-200';
+                    optionsDiv.appendChild(divider);
+
+                    const skipButton = document.createElement('button');
+                    const isSkipped = answers[questionId] === question.skipOption.value;
+
+                    skipButton.className = `w-full text-left px-4 py-3 rounded-xl border transition-all duration-200 ${
+                        isSkipped
+                        ? 'border-purple-500 bg-purple-50 text-purple-700' 
+                        : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                    }`;
+
+                    const skipIconDiv = document.createElement('div');
+                    skipIconDiv.className = 'flex items-center';
+                    
+                    const skipIcon = document.createElement('i');
+                    skipIcon.className = `far ${isSkipped ? 'fa-check-circle' : 'fa-circle'} mr-3`;
+                    
+                    const skipLabel = document.createElement('span');
+                    skipLabel.textContent = question.skipOption.label;
+
+                    skipIconDiv.appendChild(skipIcon);
+                    skipIconDiv.appendChild(skipLabel);
+                    skipButton.appendChild(skipIconDiv);
+
+                    skipButton.onclick = () => {
+                        debug('Skip option clicked');
+                        handleAnswer(questionId, question.skipOption.value);
+                    };
+                    
+                    optionsDiv.appendChild(skipButton);
+                }
+
+                questionContainer.appendChild(optionsDiv);
+            }
+
+            // 更新导航按钮
+            const backButton = document.getElementById('backButton');
+            const nextButton = document.getElementById('nextButton');
+            
+            backButton.style.display = questionHistory.length > 0 ? 'block' : 'none';
+            nextButton.style.display = 'block';
+            
+            // 对于多选题，需要检查是否至少选择了一个选项或选择了跳过
+            if (question.type === 'checkbox') {
+                const hasSkipped = answers[questionId] === question.skipOption?.value;
+                const hasSelections = answers[questionId] && answers[questionId].length > 0;
+                nextButton.disabled = !hasSkipped && !hasSelections;
+                nextButton.className = `flex-1 ${nextButton.disabled ? 'bg-gray-300 cursor-not-allowed' : 'bg-purple-500 hover:bg-purple-600'} text-white rounded-xl py-3 transition-colors`;
+            }
+
+            // 添加淡入效果
+            setTimeout(() => {
+                document.getElementById('aiResponse').classList.remove('fade-out');
+                document.getElementById('aiResponse').classList.add('fade-in');
+                document.getElementById('questionContainer').classList.remove('fade-out');
+                document.getElementById('questionContainer').classList.add('fade-in');
+            }, 100);
+        }
+
+        function handleAnswer(questionId, answer) {
+            debug('Handling answer for question: ' + questionId);
+            debug('Answer: ' + JSON.stringify(answer));
+            
+            const question = questions[questionId];
+            
+            // 如果点击了跳过选项
+            if (question.skipOption && answer === question.skipOption.value) {
+                answers[questionId] = answer;
+            } else if (question.skipOption && answers[questionId] === question.skipOption.value) {
+                // 如果之前选择了跳过，现在选择了具体选项，清除跳过状态
+                answers[questionId] = question.type === 'checkbox' ? [answer] : answer;
+            } else {
+                answers[questionId] = answer;
+            }
+
+            localStorage.setItem('managementAnswers', JSON.stringify(answers));
+            debug('Updated answers in localStorage');
+            
+            // 如果是多选题且不是跳过选项，更新显示状态
+            if (question.type === 'checkbox' && (!question.skipOption || answer !== question.skipOption.value)) {
+                showQuestion(questionId);
+                // 启用继续按钮
+                const nextButton = document.getElementById('nextButton');
+                const hasSelections = answers[questionId] && answers[questionId].length > 0;
+                nextButton.disabled = !hasSelections;
+                nextButton.className = `flex-1 ${nextButton.disabled ? 'bg-gray-300 cursor-not-allowed' : 'bg-purple-500 hover:bg-purple-600'} text-white rounded-xl py-3 transition-colors`;
+                return;
+            }
+
+            // 对于单选题或跳过选项，自动进入下一题
+            setTimeout(() => {
+                if (question.nextQuestion === 'complete') {
+                    handleComplete();
+                    return;
+                }
+                questionHistory.push(currentQuestionId);
+                currentQuestionId = question.nextQuestion;
+                localStorage.setItem('currentManagementQuestionId', currentQuestionId);
+                showQuestion(currentQuestionId);
+            }, 500);
+        }
+
+        function goToPreviousQuestion() {
+            debug('Going to previous question');
+            if (questionHistory.length > 0) {
+                currentQuestionId = questionHistory.pop();
+                localStorage.setItem('currentManagementQuestionId', currentQuestionId);
+                showQuestion(currentQuestionId);
+            }
+        }
+
+        function submitAnswer() {
+            debug('Submitting answer');
+            if (answers[currentQuestionId]) {
+                const question = questions[currentQuestionId];
+                if (question.nextQuestion === 'complete') {
+                    handleComplete();
+                    return;
+                }
+                questionHistory.push(currentQuestionId);
+                currentQuestionId = question.nextQuestion;
+                localStorage.setItem('currentManagementQuestionId', currentQuestionId);
+                showQuestion(currentQuestionId);
+            }
+        }
+
+        function handleComplete() {
+            debug('Handling completion');
+            // 保存健康管理设置
+            const managementSettings = {
+                bloodSugarMonitor: answers.bloodSugarMonitor,
+                mealRecord: answers.mealRecord,
+                exerciseGoal: answers.exerciseGoal,
+                bloodPressure: answers.bloodPressure,
+                medicationRecord: answers.medicationRecord
+            };
+            
+            // 保存数据
+            localStorage.setItem('managementSettings', JSON.stringify(managementSettings));
+            
+            // 清除临时数据
+            localStorage.removeItem('currentManagementQuestionId');
+            localStorage.removeItem('managementAnswers');
+            
+            // 设置完成标志
+            localStorage.setItem('setupComplete', 'true');
+            
+            // 跳转到首页
+            window.location.href = '../home.html';
+        }
+
+        // 页面加载时显示第一个问题
+        document.addEventListener('DOMContentLoaded', () => {
+            debug('DOM Content Loaded');
+            showQuestion(currentQuestionId);
+        });
+
+        // 添加错误处理
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.error('Error: ' + msg + '\nURL: ' + url + '\nLine: ' + lineNo + '\nColumn: ' + columnNo + '\nError object: ' + JSON.stringify(error));
+            return false;
+        };
+    </script>
+</body>
+</html> 

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康记录指南</title>
+    <link rel="stylesheet" href="../../styles/common.css">
+    <style>
+        .guide-container {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .guide-message {
+            background: #ffffff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .guide-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .guide-title {
+            font-size: 1.2em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .guide-content {
+            color: #34495e;
+            line-height: 1.6;
+        }
+
+        .guide-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+        }
+
+        .guide-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .next-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            align-self: center;
+            transition: background-color 0.3s;
+        }
+
+        .next-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="guide-container">
+        <div id="message1" class="guide-message">
+            <div class="guide-item">
+                <img src="../../assets/icons/blood-glucose.png" alt="血糖" class="guide-icon">
+                <div>
+                    <div class="guide-title">血糖记录规则</div>
+                    <div class="guide-content">
+                        建议每天定时测量并记录血糖值：
+                        <ul>
+                            <li>空腹血糖（早餐前）</li>
+                            <li>餐后2小时血糖</li>
+                            <li>特殊情况（如身体不适时）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="message2" class="guide-message">
+            <div class="guide-item">
+                <img src="../../assets/icons/diet.png" alt="饮食" class="guide-icon">
+                <div>
+                    <div class="guide-title">饮食记录规则</div>
+                    <div class="guide-content">
+                        记录每日饮食情况：
+                        <ul>
+                            <li>记录每餐食物种类和份量</li>
+                            <li>注意碳水化合物的摄入量</li>
+                            <li>记录不规律饮食或加餐情况</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="message3" class="guide-message">
+            <div class="guide-item">
+                <img src="../../assets/icons/exercise.png" alt="运动" class="guide-icon">
+                <div>
+                    <div class="guide-title">运动记录规则</div>
+                    <div class="guide-content">
+                        记录运动情况：
+                        <ul>
+                            <li>运动类型和持续时间</li>
+                            <li>运动强度</li>
+                            <li>运动前后血糖变化（如有）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button id="nextButton" class="next-button" style="display: none;">开始使用</button>
+    </div>
+
+    <script>
+        const messages = ['message1', 'message2', 'message3'];
+        let currentIndex = 0;
+
+        function showNextMessage() {
+            if (currentIndex < messages.length) {
+                const messageElement = document.getElementById(messages[currentIndex]);
+                messageElement.classList.add('show');
+                currentIndex++;
+
+                if (currentIndex === messages.length) {
+                    setTimeout(() => {
+                        document.getElementById('nextButton').style.display = 'block';
+                    }, 1000);
+                } else {
+                    setTimeout(showNextMessage, 3000);
+                }
+            }
+        }
+
+        document.getElementById('nextButton').addEventListener('click', () => {
+            window.location.href = '../dashboard/index.html';
+        });
+
+        // Start showing messages when page loads
+        window.onload = () => {
+            showNextMessage();
+        };
+    </script>
+</body>
+</html> 
