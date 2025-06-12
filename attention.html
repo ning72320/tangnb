@@ -194,10 +194,16 @@
             transition: transform 0.2s ease;
             will-change: transform;
             transform-origin: center center;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .shape:hover {
             transform: scale(1.05);
+        }
+
+        .shape:active {
+            transform: scale(0.95);
         }
 
         .shape svg {
@@ -298,12 +304,37 @@
 
         @media (max-width: 768px) {
             .game-board {
+                width: 95vw;
                 height: 70vh;
                 max-height: none;
+                margin-top: 60px;
+            }
+
+            .shape {
+                min-width: 45px;
+                min-height: 45px;
+                padding: 5px;
             }
             
-            #countdown {
-                font-size: 120px;
+            .shape:hover {
+                transform: none;
+            }
+            
+            .shape:active {
+                transform: scale(0.95);
+            }
+
+            .task-hint {
+                top: 60px;
+            }
+
+            .header {
+                padding: 0.5rem 1rem;
+            }
+
+            .stat-item {
+                padding: 0.3rem 0.8rem;
+                font-size: 1rem;
             }
         }
     </style>
@@ -712,20 +743,21 @@
 
                 // 找到一个有效的放置位置
                 function findValidPosition(size, boardWidth, boardHeight) {
-                    const cellSize = Math.max(size, 80); // 使用网格单元大小
+                    const cellSize = Math.max(size, 60); // 减小网格单元大小
                     const { grid, cols, rows } = createGrid(boardWidth, boardHeight, cellSize);
-                    const margin = size * 0.3; // 减小边距以允许更多空间
+                    const margin = size * 0.2; // 减小边距
 
-                    // 计算可用区域
-                    const playAreaWidth = boardWidth * 0.8;
-                    const playAreaHeight = boardHeight * 0.8;
+                    // 计算可用区域 - 在移动设备上使用更大比例的区域
+                    const isMobile = window.innerWidth <= 768;
+                    const playAreaWidth = boardWidth * (isMobile ? 0.9 : 0.8);
+                    const playAreaHeight = boardHeight * (isMobile ? 0.9 : 0.8);
                     const startX = (boardWidth - playAreaWidth) / 2;
                     const startY = (boardHeight - playAreaHeight) / 2;
 
                     // 创建候选位置列表
                     const positions = [];
-                    for (let row = 1; row < rows - 1; row++) {
-                        for (let col = 1; col < cols - 1; col++) {
+                    for (let row = 0; row < rows; row++) {
+                        for (let col = 0; col < cols; col++) {
                             const x = startX + col * cellSize;
                             const y = startY + row * cellSize;
                             
@@ -738,10 +770,7 @@
                     }
 
                     // 随机打乱位置顺序
-                    for (let i = positions.length - 1; i > 0; i--) {
-                        const j = Math.floor(Math.random() * (i + 1));
-                        [positions[i], positions[j]] = [positions[j], positions[i]];
-                    }
+                    positions.sort(() => Math.random() - 0.5);
 
                     // 尝试每个位置
                     for (const pos of positions) {
@@ -751,7 +780,7 @@
                             for (const shape of placedShapes) {
                                 const dx = Math.abs(pos.x - shape.x);
                                 const dy = Math.abs(pos.y - shape.y);
-                                const minDistance = size + shape.size + margin;
+                                const minDistance = (size + shape.size) / 2 + margin;
                                 if (dx < minDistance && dy < minDistance) {
                                     tooClose = true;
                                     break;
@@ -765,7 +794,6 @@
                         }
                     }
 
-                    // 如果没有找到合适的位置，返回一个备用位置
                     return null;
                 }
 
@@ -778,7 +806,11 @@
                     const div = document.createElement('div');
                     div.className = 'shape';
                     
-                    const size = shapeInfo.shape.size;
+                    // 根据设备调整大小
+                    const isMobile = window.innerWidth <= 768;
+                    const baseSize = isMobile ? 45 : shapeInfo.shape.size;
+                    const size = baseSize;
+                    
                     div.style.width = size + 'px';
                     div.style.height = size + 'px';
 
