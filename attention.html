@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>注意力训练</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(180deg, #1a237e 0%, #283593 30%, #3949ab 60%, #1e88e5 85%, #039be5 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 60px 0 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            justify-content: flex-start;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header {
+            width: 100%;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .title {
+            font-size: 1.4rem;
+            color: #fff;
+            text-align: center;
+            font-weight: 600;
+            margin: 0;
+            flex: 1;
+        }
+
+        .game-stats {
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 500;
+            width: 100%;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            margin: 0 0.5rem;
+        }
+
+        #game-content {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+
+        .game-title {
+            font-size: 2rem;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .game-active {
+            background: rgba(0, 77, 64, 0.95) !important;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game-active .container {
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game-board {
+            width: 90vmin;
+            height: 90vmin;
+            max-width: 600px;
+            max-height: 600px;
+            background: transparent;
+            border-radius: 0;
+            position: relative;
+            display: none;
+            overflow: visible;
+            margin: 0 auto;
+        }
+
+        .white-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 0 1rem 1rem 1rem;
+            width: calc(100% - 2rem);
+            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            color: #333;
+        }
+
+        .rules-title {
+            font-size: 1.3rem;
+            color: #444;
+            text-align: center;
+            margin: 0 0 1rem 0;
+            font-weight: bold;
+        }
+
+        .rules-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            text-align: center;
+            color: #333;
+        }
+
+        .start-button {
+            background: #ffde59;
+            color: #333;
+            border: none;
+            border-radius: 50px;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 1.5rem auto;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            width: 80%;
+            max-width: 300px;
+        }
+
+        .start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .shape {
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            will-change: transform;
+            transform-origin: center center;
+        }
+
+        .shape:hover {
+            transform: scale(1.05);
+        }
+
+        .shape svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        #countdown {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 200px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 30px rgba(255,255,255,0.5);
+            z-index: 1000;
+            display: none;
+        }
+
+        .score-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .score-title {
+            font-size: 2rem;
+            color: #2d2a5d;
+            margin-bottom: 2rem;
+            font-weight: 600;
+        }
+
+        .score-card {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 3rem;
+            width: 100%;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .score-number {
+            font-size: 4rem;
+            color: #2d2a5d;
+            font-weight: bold;
+        }
+
+        .score-unit {
+            font-size: 2rem;
+            color: #2d2a5d;
+        }
+
+        .score-button {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .replay-button {
+            background: #e8f0fe;
+            color: #333;
+        }
+
+        .next-button {
+            background: #4361ee;
+            color: white;
+        }
+
+        .score-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .task-hint {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            color: #333;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 99;
+        }
+
+        @media (max-width: 768px) {
+            .game-board {
+                height: 70vh;
+                max-height: none;
+            }
+            
+            #countdown {
+                font-size: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="game-stats">
+                <div class="stat-item">时间: <span id="timer">90</span>秒</div>
+                <div class="stat-item">得分: <span id="score">0</span></div>
+            </div>
+            <h1 class="title">注意力训练</h1>
+        </header>
+
+        <div id="game-content">
+            <h1 class="game-title">形色寻找</h1>
+            <div class="white-card">
+                <p class="rules-text">
+                    90秒内，找出那个不一样的。<br>
+                    找对得50分，找错扣30分。<br>
+                    看看你能得多少分！
+                </p>
+            </div>
+            <button id="start-button" class="start-button">开始游戏</button>
+        </div>
+
+        <div id="game-board" class="game-board"></div>
+
+        <div id="score-screen" class="score-screen">
+            <h2 class="score-title">注意力训练</h2>
+            <div class="score-card">
+                <span class="score-number" id="final-score">0</span>
+                <span class="score-unit">分</span>
+            </div>
+            <button class="score-button replay-button" onclick="location.reload()">再玩一次</button>
+            <button class="score-button next-button">进入下一个游戏</button>
+        </div>
+
+        <div id="countdown"></div>
+        
+    </div>
+
+    <script>
+        class AttentionGame {
+            constructor() {
+                this.gameBoard = document.getElementById('game-board');
+                this.startBtn = document.getElementById('start-button');
+                this.gameContent = document.getElementById('game-content');
+                this.scoreDisplay = document.getElementById('score');
+                this.timerDisplay = document.getElementById('timer');
+                this.countdown = document.getElementById('countdown');
+                this.taskHint = document.getElementById('task-hint');
+                this.scoreScreen = document.getElementById('score-screen');
+                this.finalScore = document.getElementById('final-score');
+
+                // 游戏状态
+                this.score = 0;
+                this.timeLeft = 90;
+                this.shapes = [];
+                this.currentTask = '';
+                this.targetIndex = -1;
+                this.isGameRunning = false;
+                this.difficultyLevel = 0;
+                this.correctStreak = 0;
+                this.wrongStreak = 0;
+
+                // 基础形状定义
+                this.baseShapes = [
+                    {
+                        name: 'square',
+                        points: '0,0 100,0 100,100 0,100',
+                        size: 60
+                    },
+                    {
+                        name: 'triangle',
+                        points: '50,0 100,86.6 0,86.6',
+                        size: 70
+                    },
+                    {
+                        name: 'circle',
+                        points: '50,0 61,11 71,25 77,42 77,58 71,75 61,89 50,100 39,89 29,75 23,58 23,42 29,25 39,11',
+                        size: 65
+                    },
+                    {
+                        name: 'star',
+                        points: '50,0 61,35 98,35 68,57 79,91 50,70 21,91 32,57 2,35 39,35',
+                        size: 70
+                    },
+                    {
+                        name: 'diamond',
+                        points: '50,0 100,50 50,100 0,50',
+                        size: 65
+                    },
+                    {
+                        name: 'cross',
+                        points: '35,0 65,0 65,35 100,35 100,65 65,65 65,100 35,100 35,65 0,65 0,35 35,35',
+                        size: 70
+                    }
+                ];
+
+                // 修改难度设置
+                this.difficulty = {
+                    levels: [
+                        {
+                            name: '形状差异',  // 第一级：只有形状差异
+                            groupCount: 1,     // 只有一组相同形状
+                            minGroupSize: 5,   // 每组至少5个
+                            maxGroupSize: 8    // 每组最多8个
+                        },
+                        {
+                            name: '颜色分组',  // 第二级：相同形状，不同颜色分组
+                            groupCount: 3,     // 3个颜色组
+                            minGroupSize: 3,   // 每组至少3个
+                            maxGroupSize: 5    // 每组最多5个
+                        },
+                        {
+                            name: '形状颜色组合', // 第三级：不同形状和颜色的组合
+                            groupCount: 3,     // 3个形状颜色组合
+                            minGroupSize: 4,   // 每组至少4个
+                            maxGroupSize: 8    // 每组最多8个
+                        }
+                    ],
+                    colors: [
+                        '#FF6B6B', // 红色
+                        '#4ECDC4', // 青色
+                        '#45B7D1', // 蓝色
+                        '#96CEB4', // 绿色
+                        '#FFEEAD', // 黄色
+                        '#D4A5A5', // 粉色
+                        '#9B59B6', // 紫色
+                        '#3498DB'  // 深蓝色
+                    ]
+                };
+
+                this.startBtn.addEventListener('click', () => this.startGame());
+                this.initializeGame();
+            }
+
+            initializeGame() {
+                this.gameBoard.style.display = 'none';
+                this.scoreScreen.style.display = 'none';
+                this.gameContent.style.display = 'flex';
+                document.querySelector('.game-stats').style.display = 'none';
+                document.querySelector('.title').style.display = 'block';
+            }
+
+            startGame() {
+                this.showCountdown(() => {
+                    this.gameContent.style.display = 'none';
+                    this.gameBoard.style.display = 'block';
+                    this.isGameRunning = true;
+                    this.startRound();
+                    this.startTimer();
+                    document.body.classList.add('game-active');
+                });
+            }
+
+            showCountdown(callback) {
+                this.gameContent.style.display = 'none';
+                document.querySelector('.header').style.display = 'none';
+                
+                let count = 3;
+                this.countdown.style.display = 'block';
+                this.countdown.textContent = count;
+
+                const countInterval = setInterval(() => {
+                    count--;
+                    if (count === 0) {
+                        clearInterval(countInterval);
+                        this.countdown.style.display = 'none';
+                        document.querySelector('.header').style.display = 'flex';
+                        document.querySelector('.game-stats').style.display = 'flex';
+                        document.querySelector('.title').style.display = 'none';
+                        callback();
+                    } else {
+                        this.countdown.textContent = count;
+                    }
+                }, 1000);
+            }
+
+            startTimer() {
+                const timer = setInterval(() => {
+                    this.timeLeft--;
+                    this.timerDisplay.textContent = this.timeLeft;
+                    
+                    if (this.timeLeft <= 10) {
+                        this.timerDisplay.style.color = '#f72585';
+                    }
+                    
+                    if (this.timeLeft <= 0) {
+                        clearInterval(timer);
+                        this.endGame();
+                    }
+                }, 1000);
+            }
+
+            getRandomShape() {
+                return this.baseShapes[Math.floor(Math.random() * this.baseShapes.length)];
+            }
+
+            adjustColor(baseColor, diff) {
+                // 将16进制颜色转换为RGB
+                const r = parseInt(baseColor.slice(1, 3), 16);
+                const g = parseInt(baseColor.slice(3, 5), 16);
+                const b = parseInt(baseColor.slice(5, 7), 16);
+
+                // 随机调整一个颜色通道
+                const channel = Math.floor(Math.random() * 3);
+                const adjustment = Math.random() < 0.5 ? -diff : diff;
+
+                let newR = r, newG = g, newB = b;
+                switch(channel) {
+                    case 0: newR = Math.max(0, Math.min(255, r + adjustment)); break;
+                    case 1: newG = Math.max(0, Math.min(255, g + adjustment)); break;
+                    case 2: newB = Math.max(0, Math.min(255, b + adjustment)); break;
+                }
+
+                // 转回16进制
+                return '#' + 
+                    Math.round(newR).toString(16).padStart(2, '0') +
+                    Math.round(newG).toString(16).padStart(2, '0') +
+                    Math.round(newB).toString(16).padStart(2, '0');
+            }
+
+            deformShape(points, amount) {
+                const coords = points.split(' ').map(pair => {
+                    const [x, y] = pair.split(',').map(Number);
+                    return {x, y};
+                });
+
+                // 随机选择一个点进行变形
+                const index = Math.floor(Math.random() * coords.length);
+                const angle = Math.random() * Math.PI * 2;
+                
+                coords[index].x += Math.cos(angle) * amount * 50;
+                coords[index].y += Math.sin(angle) * amount * 50;
+
+                return coords.map(coord => `${coord.x},${coord.y}`).join(' ');
+            }
+
+            placeShapes() {
+                this.gameBoard.innerHTML = '';
+                const currentLevel = this.difficulty.levels[this.difficultyLevel];
+                
+                // 创建组
+                const groups = [];
+                let targetGroup;
+
+                if (this.difficultyLevel === 0) {
+                    // 第一级：一组相同形状，一个不同形状
+                    const mainShape = this.getRandomShape();
+                    const mainColor = this.difficulty.colors[0];
+                    
+                    // 获取一个不同的目标形状
+                    let targetShape;
+                    do {
+                        targetShape = this.getRandomShape();
+                    } while (targetShape.name === mainShape.name);
+
+                    // 创建主组
+                    const mainGroupSize = Math.floor(Math.random() * 
+                        (currentLevel.maxGroupSize - currentLevel.minGroupSize + 1)) + 
+                        currentLevel.minGroupSize;
+                    
+                    groups.push({
+                        shape: mainShape,
+                        color: mainColor,
+                        count: mainGroupSize,
+                        isTarget: false
+                    });
+
+                    // 创建目标（一个不同形状）
+                    targetGroup = {
+                        shape: targetShape,
+                        color: mainColor,
+                        count: 1,
+                        isTarget: true
+                    };
+
+                } else if (this.difficultyLevel === 1) {
+                    // 第二级：相同形状，不同颜色分组
+                    const shape = this.getRandomShape();
+                    const colors = [...this.difficulty.colors]
+                        .sort(() => Math.random() - 0.5)
+                        .slice(0, currentLevel.groupCount);
+
+                    // 创建2-3个颜色组
+                    colors.forEach((color, index) => {
+                        const size = Math.floor(Math.random() * 
+                            (currentLevel.maxGroupSize - currentLevel.minGroupSize + 1)) + 
+                            currentLevel.minGroupSize;
+                        
+                        groups.push({
+                            shape: shape,
+                            color: color,
+                            count: index === colors.length - 1 ? 1 : size, // 最后一组只有1个
+                            isTarget: index === colors.length - 1 // 最后一组是目标
+                        });
+                    });
+
+                    targetGroup = groups[groups.length - 1];
+
+                } else {
+                    // 第三级：不同形状和颜色的组合
+                    const shapes = [];
+                    const colors = [];
+                    
+                    // 确保有足够的不同形状和颜色
+                    while (shapes.length < 2) {
+                        const shape = this.getRandomShape();
+                        if (!shapes.find(s => s.name === shape.name)) {
+                            shapes.push(shape);
+                        }
+                    }
+                    
+                    while (colors.length < 2) {
+                        const color = this.difficulty.colors[Math.floor(Math.random() * this.difficulty.colors.length)];
+                        if (!colors.includes(color)) {
+                            colors.push(color);
+                        }
+                    }
+
+                    // 创建主要组（形状1+颜色1的多个）
+                    groups.push({
+                        shape: shapes[0],
+                        color: colors[0],
+                        count: Math.floor(Math.random() * 
+                            (currentLevel.maxGroupSize - currentLevel.minGroupSize + 1)) + 
+                            currentLevel.minGroupSize,
+                        isTarget: false
+                    });
+
+                    // 创建次要组（形状2+颜色1的多个）
+                    groups.push({
+                        shape: shapes[1],
+                        color: colors[0],
+                        count: Math.floor(Math.random() * 
+                            (currentLevel.maxGroupSize - currentLevel.minGroupSize + 1)) + 
+                            currentLevel.minGroupSize,
+                        isTarget: false
+                    });
+
+                    // 创建目标组（形状1+颜色2的一个）
+                    targetGroup = {
+                        shape: shapes[0],
+                        color: colors[1],
+                        count: 1,
+                        isTarget: true
+                    };
+                }
+
+                // 如果targetGroup不在groups中，添加它
+                if (!groups.includes(targetGroup)) {
+                    groups.push(targetGroup);
+                }
+
+                // 记录目标组的索引
+                this.targetGroupIndex = groups.length - 1;
+
+                // 打乱所有图形的顺序并放置
+                const allShapes = [];
+                groups.forEach((group, groupIndex) => {
+                    for (let i = 0; i < group.count; i++) {
+                        allShapes.push({
+                            shape: group.shape,
+                            color: group.color,
+                            groupIndex: groupIndex
+                        });
+                    }
+                });
+
+                // 随机打乱顺序
+                allShapes.sort(() => Math.random() - 0.5);
+
+                // 放置所有图形
+                const placedShapes = [];  // 用于存储已放置的形状位置
+
+                // 创建网格系统
+                function createGrid(boardWidth, boardHeight, cellSize) {
+                    const cols = Math.floor(boardWidth / cellSize);
+                    const rows = Math.floor(boardHeight / cellSize);
+                    const grid = Array(rows).fill().map(() => Array(cols).fill(false));
+                    return { grid, cols, rows };
+                }
+
+                // 检查网格区域是否可用
+                function isGridAreaAvailable(grid, startRow, startCol, size, cellSize) {
+                    const cells = Math.ceil(size / cellSize);
+                    for (let r = startRow; r < startRow + cells && r < grid.length; r++) {
+                        for (let c = startCol; c < startCol + cells && c < grid[0].length; c++) {
+                            if (grid[r][c]) return false;
+                        }
+                    }
+                    return true;
+                }
+
+                // 标记网格区域为已占用
+                function markGridArea(grid, startRow, startCol, size, cellSize) {
+                    const cells = Math.ceil(size / cellSize);
+                    for (let r = startRow; r < startRow + cells && r < grid.length; r++) {
+                        for (let c = startCol; c < startCol + cells && c < grid[0].length; c++) {
+                            grid[r][c] = true;
+                        }
+                    }
+                }
+
+                // 找到一个有效的放置位置
+                function findValidPosition(size, boardWidth, boardHeight) {
+                    const cellSize = Math.max(size, 80); // 使用网格单元大小
+                    const { grid, cols, rows } = createGrid(boardWidth, boardHeight, cellSize);
+                    const margin = size * 0.3; // 减小边距以允许更多空间
+
+                    // 计算可用区域
+                    const playAreaWidth = boardWidth * 0.8;
+                    const playAreaHeight = boardHeight * 0.8;
+                    const startX = (boardWidth - playAreaWidth) / 2;
+                    const startY = (boardHeight - playAreaHeight) / 2;
+
+                    // 创建候选位置列表
+                    const positions = [];
+                    for (let row = 1; row < rows - 1; row++) {
+                        for (let col = 1; col < cols - 1; col++) {
+                            const x = startX + col * cellSize;
+                            const y = startY + row * cellSize;
+                            
+                            // 确保位置在可用区域内
+                            if (x >= startX && x <= startX + playAreaWidth - size &&
+                                y >= startY && y <= startY + playAreaHeight - size) {
+                                positions.push({ row, col, x, y });
+                            }
+                        }
+                    }
+
+                    // 随机打乱位置顺序
+                    for (let i = positions.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [positions[i], positions[j]] = [positions[j], positions[i]];
+                    }
+
+                    // 尝试每个位置
+                    for (const pos of positions) {
+                        if (isGridAreaAvailable(grid, pos.row, pos.col, size, cellSize)) {
+                            // 检查与已放置形状的距离
+                            let tooClose = false;
+                            for (const shape of placedShapes) {
+                                const dx = Math.abs(pos.x - shape.x);
+                                const dy = Math.abs(pos.y - shape.y);
+                                const minDistance = size + shape.size + margin;
+                                if (dx < minDistance && dy < minDistance) {
+                                    tooClose = true;
+                                    break;
+                                }
+                            }
+                            
+                            if (!tooClose) {
+                                markGridArea(grid, pos.row, pos.col, size, cellSize);
+                                return { x: pos.x, y: pos.y };
+                            }
+                        }
+                    }
+
+                    // 如果没有找到合适的位置，返回一个备用位置
+                    return null;
+                }
+
+                // 计算游戏板尺寸
+                const boardWidth = this.gameBoard.clientWidth;
+                const boardHeight = this.gameBoard.clientHeight;
+
+                // 为每个形状找位置
+                for (const shapeInfo of allShapes) {
+                    const div = document.createElement('div');
+                    div.className = 'shape';
+                    
+                    const size = shapeInfo.shape.size;
+                    div.style.width = size + 'px';
+                    div.style.height = size + 'px';
+
+                    div.innerHTML = `
+                        <svg viewBox="0 0 100 100">
+                            <polygon points="${shapeInfo.shape.points}" fill="${shapeInfo.color}" />
+                        </svg>
+                    `;
+                    
+                    // 尝试找到一个有效位置
+                    const position = findValidPosition(size, boardWidth, boardHeight);
+                    
+                    if (position) {
+                        div.style.left = Math.round(position.x) + 'px';
+                        div.style.top = Math.round(position.y) + 'px';
+                        
+                        // 记录这个形状的位置
+                        placedShapes.push({
+                            x: position.x,
+                            y: position.y,
+                            size: size
+                        });
+                        
+                        div.addEventListener('click', () => this.handleClick(shapeInfo.groupIndex));
+                        this.gameBoard.appendChild(div);
+                    } else {
+                        console.warn('Could not find valid position for shape');
+                    }
+                }
+
+                this.taskHint.style.display = 'none';
+            }
+
+            handleClick(groupIndex) {
+                if (!this.isGameRunning) return;
+
+                const isCorrect = groupIndex === this.targetGroupIndex;
+                
+                if (isCorrect) {
+                    this.score += 50;
+                    this.correctStreak++;
+                    this.wrongStreak = 0;
+                    
+                    // 连续答对2次升级
+                    if (this.correctStreak >= 2 && this.difficultyLevel < 2) {
+                        this.difficultyLevel++;
+                        this.correctStreak = 0;
+                    }
+                } else {
+                    this.score = Math.max(0, this.score - 30);
+                    this.correctStreak = 0;
+                    this.wrongStreak++;
+                    
+                    // 连续答错3次降级
+                    if (this.wrongStreak >= 3 && this.difficultyLevel > 0) {
+                        this.difficultyLevel--;
+                        this.wrongStreak = 0;
+                    }
+                }
+
+                this.scoreDisplay.textContent = this.score;
+                this.placeShapes();
+            }
+
+            startRound() {
+                this.placeShapes();
+            }
+
+            endGame() {
+                this.isGameRunning = false;
+                this.gameBoard.style.display = 'none';
+                this.taskHint.style.display = 'none';
+                document.querySelector('.game-stats').style.display = 'none';
+                document.body.classList.remove('game-active');
+                
+                this.scoreScreen.style.display = 'flex';
+                this.finalScore.textContent = this.score;
+            }
+        }
+
+        // 启动游戏
+        new AttentionGame();
+    </script>
+</body>
+</html> 
