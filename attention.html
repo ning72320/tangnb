@@ -380,6 +380,7 @@
     <script>
         class AttentionGame {
             constructor() {
+                // DOM 元素
                 this.gameBoard = document.getElementById('game-board');
                 this.startBtn = document.getElementById('start-button');
                 this.gameContent = document.getElementById('game-content');
@@ -389,6 +390,7 @@
                 this.taskHint = document.getElementById('task-hint');
                 this.scoreScreen = document.getElementById('score-screen');
                 this.finalScore = document.getElementById('final-score');
+                this.gameStats = document.querySelector('.game-stats');
 
                 // 游戏状态
                 this.score = 0;
@@ -400,6 +402,8 @@
                 this.difficultyLevel = 0;
                 this.correctStreak = 0;
                 this.wrongStreak = 0;
+                this.gameTimer = null;
+                this.countdownTimer = null;
 
                 // 基础形状定义
                 this.baseShapes = [
@@ -469,66 +473,146 @@
                     ]
                 };
 
+                // 事件监听
                 this.startBtn.addEventListener('click', () => this.startGame());
+                
+                // 初始化游戏
                 this.initializeGame();
             }
 
             initializeGame() {
+                // 停止所有计时器
+                this.clearAllTimers();
+                
+                // 重置状态
+                this.score = 0;
+                this.timeLeft = 90;
+                this.isGameRunning = false;
+                this.difficultyLevel = 0;
+                this.correctStreak = 0;
+                this.wrongStreak = 0;
+
+                // 更新显示
+                this.updateScore();
+                this.updateTimer();
+                
+                // 重置UI
                 this.gameBoard.style.display = 'none';
                 this.scoreScreen.style.display = 'none';
                 this.gameContent.style.display = 'flex';
-                document.querySelector('.game-stats').style.display = 'none';
+                this.gameStats.style.display = 'none';
                 document.querySelector('.title').style.display = 'block';
+                document.body.classList.remove('game-active');
+            }
+
+            clearAllTimers() {
+                if (this.gameTimer) {
+                    clearInterval(this.gameTimer);
+                    this.gameTimer = null;
+                }
+                if (this.countdownTimer) {
+                    clearInterval(this.countdownTimer);
+                    this.countdownTimer = null;
+                }
             }
 
             startGame() {
-                this.showCountdown(() => {
-                    this.gameContent.style.display = 'none';
-                    this.gameBoard.style.display = 'block';
-                    this.isGameRunning = true;
-                    this.startRound();
-                    this.startTimer();
-                    document.body.classList.add('game-active');
-                });
+                // 重置游戏状态
+                this.clearAllTimers();
+                this.score = 0;
+                this.timeLeft = 90;
+                this.updateScore();
+                this.updateTimer();
+                
+                // 开始倒计时
+                this.showCountdown();
             }
 
-            showCountdown(callback) {
+            showCountdown() {
+                // 隐藏相关元素
                 this.gameContent.style.display = 'none';
                 document.querySelector('.header').style.display = 'none';
                 
+                // 显示倒计时
                 let count = 3;
                 this.countdown.style.display = 'block';
                 this.countdown.textContent = count;
 
-                const countInterval = setInterval(() => {
+                this.countdownTimer = setInterval(() => {
                     count--;
-                    if (count === 0) {
-                        clearInterval(countInterval);
-                        this.countdown.style.display = 'none';
-                        document.querySelector('.header').style.display = 'flex';
-                        document.querySelector('.game-stats').style.display = 'flex';
-                        document.querySelector('.title').style.display = 'none';
-                        callback();
-                    } else {
+                    if (count > 0) {
                         this.countdown.textContent = count;
+                    } else {
+                        // 清除倒计时定时器
+                        clearInterval(this.countdownTimer);
+                        this.countdownTimer = null;
+                        
+                        // 隐藏倒计时
+                        this.countdown.style.display = 'none';
+                        
+                        // 显示游戏界面
+                        document.querySelector('.header').style.display = 'flex';
+                        this.gameStats.style.display = 'flex';
+                        document.querySelector('.title').style.display = 'none';
+                        this.gameBoard.style.display = 'block';
+                        
+                        // 开始游戏
+                        this.isGameRunning = true;
+                        document.body.classList.add('game-active');
+                        
+                        // 启动游戏定时器
+                        this.startGameTimer();
+                        
+                        // 开始第一轮
+                        this.startRound();
                     }
                 }, 1000);
             }
 
-            startTimer() {
-                const timer = setInterval(() => {
-                    this.timeLeft--;
-                    this.timerDisplay.textContent = this.timeLeft;
-                    
-                    if (this.timeLeft <= 10) {
-                        this.timerDisplay.style.color = '#f72585';
+            startGameTimer() {
+                // 确保之前的定时器已停止
+                if (this.gameTimer) {
+                    clearInterval(this.gameTimer);
+                    this.gameTimer = null;
+                }
+                
+                // 重置时间
+                this.timeLeft = 90;
+                this.updateTimer();
+                
+                // 启动新的定时器
+                this.gameTimer = setInterval(() => {
+                    if (!this.isGameRunning) {
+                        this.clearAllTimers();
+                        return;
                     }
                     
-                    if (this.timeLeft <= 0) {
-                        clearInterval(timer);
-                        this.endGame();
+                    if (this.timeLeft > 0) {
+                        this.timeLeft--;
+                        this.updateTimer();
+                        
+                        if (this.timeLeft === 0) {
+                            this.endGame();
+                        }
                     }
                 }, 1000);
+            }
+
+            updateTimer() {
+                if (this.timerDisplay) {
+                    this.timerDisplay.textContent = Math.max(0, this.timeLeft);
+                    if (this.timeLeft <= 10) {
+                        this.timerDisplay.style.color = '#f72585';
+                    } else {
+                        this.timerDisplay.style.color = '';
+                    }
+                }
+            }
+
+            updateScore() {
+                if (this.scoreDisplay) {
+                    this.scoreDisplay.textContent = this.score;
+                }
             }
 
             getRandomShape() {
@@ -854,7 +938,6 @@
                     this.correctStreak++;
                     this.wrongStreak = 0;
                     
-                    // 连续答对2次升级
                     if (this.correctStreak >= 2 && this.difficultyLevel < 2) {
                         this.difficultyLevel++;
                         this.correctStreak = 0;
@@ -864,14 +947,13 @@
                     this.correctStreak = 0;
                     this.wrongStreak++;
                     
-                    // 连续答错3次降级
                     if (this.wrongStreak >= 3 && this.difficultyLevel > 0) {
                         this.difficultyLevel--;
                         this.wrongStreak = 0;
                     }
                 }
 
-                this.scoreDisplay.textContent = this.score;
+                this.updateScore();
                 this.placeShapes();
             }
 
@@ -880,12 +962,17 @@
             }
 
             endGame() {
+                // 停止游戏
                 this.isGameRunning = false;
+                this.clearAllTimers();
+
+                // 更新UI
                 this.gameBoard.style.display = 'none';
                 this.taskHint.style.display = 'none';
-                document.querySelector('.game-stats').style.display = 'none';
+                this.gameStats.style.display = 'none';
                 document.body.classList.remove('game-active');
                 
+                // 显示得分
                 this.scoreScreen.style.display = 'flex';
                 this.finalScore.textContent = this.score;
             }
