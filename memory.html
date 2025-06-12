@@ -97,19 +97,16 @@
             width: 100%;
             height: 100%;
             text-align: center;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            transform-style: preserve-3d;
-            will-change: transform;
             -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
         }
 
         .card.flipped .card-inner {
-            transform: rotateY(180deg);
+            background: white;
         }
 
         .card.matched .card-inner {
-            transform: rotateY(180deg) scale(0.95);
+            background: #e8f5e9;
             pointer-events: none;
         }
 
@@ -125,26 +122,30 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transform: translateZ(0);
+            transition: all 0.15s ease;
         }
 
-        .card-front {
-            z-index: 2;
-            background: white;
+        .card-front .color-block {
+            background: #2196F3;
+            opacity: 1;
         }
 
-        .card-back {
-            transform: rotateY(180deg);
-            background: white;
-            z-index: 1;
+        .card.flipped .card-front .color-block {
+            display: none;
         }
 
-        .card.matched {
-            border-color: #4CAF50;
+        .card-back .color-block {
+            display: none;
+            background: var(--card-color, #2196F3);
         }
 
-        .card.matched .color-block {
-            box-shadow: 0 0 15px rgba(76,175,80,0.5);
+        .card.flipped .card-back .color-block {
+            display: block;
+        }
+
+        .card.matched .card-back .color-block {
+            display: block;
+            box-shadow: 0 0 10px rgba(76,175,80,0.5);
         }
 
         .color-block {
@@ -155,12 +156,32 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
-        .card-front .color-block {
-            background: #2196F3;
+        .card-front {
+            z-index: 2;
+            background: white;
+            opacity: 1;
         }
 
-        .card-back .color-block {
-            background: var(--card-color, #2196F3);
+        .card-back {
+            background: white;
+            z-index: 1;
+            opacity: 0;
+        }
+
+        .card.flipped .card-front {
+            opacity: 0;
+        }
+
+        .card.flipped .card-back {
+            opacity: 1;
+        }
+
+        .card.matched {
+            border-color: #4CAF50;
+        }
+
+        .card.matched .color-block {
+            box-shadow: 0 0 15px rgba(76,175,80,0.5);
         }
 
         /* 优化动画性能 */
@@ -888,19 +909,10 @@
                     return;
                 }
 
-                // 使用transform替代opacity来提高性能
-                requestAnimationFrame(() => {
-                    card.classList.add('flipped');
-                });
+                card.classList.add('flipped');
 
                 if (card.dataset.symbol === '#f44336') { // 检查是否是目标红色
-                    // 等待翻牌动画完成
-                    await new Promise(resolve => setTimeout(resolve, 300));
-                    
-                    requestAnimationFrame(() => {
-                        card.classList.add('matched');
-                    });
-                    
+                    card.classList.add('matched');
                     this.foundFacai++;
                     this.score += 100;
                     this.updateScore();
@@ -911,14 +923,9 @@
                         const nextLevel = this.levels[this.currentDifficulty];
                         this.previewText.textContent = `太棒了！难度提升到${nextLevel.grid}x${nextLevel.grid}，下一轮需要找出${nextLevel.facaiCount}个红色方块`;
                         
-                        // 给最后一张卡片足够的动画时间
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-                        this.levelComplete(true);
+                        setTimeout(() => this.levelComplete(true), 500);
                     }
                 } else {
-                    // 等待翻牌动画完成
-                    await new Promise(resolve => setTimeout(resolve, 300));
-                    
                     this.score = Math.max(0, this.score - 50);
                     this.updateScore();
                     
@@ -926,17 +933,13 @@
                     const nextLevel = this.levels[this.currentDifficulty];
                     this.previewText.textContent = `翻错了！难度调整到${nextLevel.grid}x${nextLevel.grid}，下一轮需要找出${nextLevel.facaiCount}个红色方块`;
                     
-                    // 批量处理DOM更新
                     const cardsToFlip = this.cards.filter(c => 
                         c.dataset.symbol === '#f44336' && !c.classList.contains('matched')
                     );
                     
-                    requestAnimationFrame(() => {
-                        cardsToFlip.forEach(c => c.classList.add('flipped'));
-                    });
+                    cardsToFlip.forEach(c => c.classList.add('flipped'));
                     
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                    this.levelComplete(false);
+                    setTimeout(() => this.levelComplete(false), 1000);
                 }
             }
 
