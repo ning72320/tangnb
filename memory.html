@@ -894,6 +894,9 @@
                 });
 
                 if (card.dataset.symbol === '#f44336') { // 检查是否是目标红色
+                    // 等待翻牌动画完成
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    
                     requestAnimationFrame(() => {
                         card.classList.add('matched');
                     });
@@ -908,11 +911,14 @@
                         const nextLevel = this.levels[this.currentDifficulty];
                         this.previewText.textContent = `太棒了！难度提升到${nextLevel.grid}x${nextLevel.grid}，下一轮需要找出${nextLevel.facaiCount}个红色方块`;
                         
-                        // 使用Promise和requestAnimationFrame来优化动画
+                        // 给最后一张卡片足够的动画时间
                         await new Promise(resolve => setTimeout(resolve, 1000));
                         this.levelComplete(true);
                     }
                 } else {
+                    // 等待翻牌动画完成
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    
                     this.score = Math.max(0, this.score - 50);
                     this.updateScore();
                     
