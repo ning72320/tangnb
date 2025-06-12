@@ -87,6 +87,9 @@
             -webkit-tap-highlight-color: transparent;
             perspective: 1000px;
             aspect-ratio: 1;
+            will-change: transform;
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
         }
 
         .card-inner {
@@ -94,8 +97,11 @@
             width: 100%;
             height: 100%;
             text-align: center;
-            transition: transform 0.3s;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
+            will-change: transform;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
         }
 
         .card.flipped .card-inner {
@@ -111,6 +117,7 @@
             position: absolute;
             width: 100%;
             height: 100%;
+            -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
             border-radius: 12px;
             border: 4px solid white;
@@ -118,14 +125,18 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transform: translateZ(0);
         }
 
         .card-front {
             z-index: 2;
+            background: white;
         }
 
         .card-back {
             transform: rotateY(180deg);
+            background: white;
+            z-index: 1;
         }
 
         .card.matched {
@@ -140,8 +151,8 @@
             width: 70%;
             height: 70%;
             border-radius: 8px;
-            background: #2196F3;
             transition: background-color 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .card-front .color-block {
@@ -870,20 +881,19 @@
                 return card;
             }
 
-            async                         flipCard(card) {
+            async flipCard(card) {
                 if (!this.canFlip || 
                     card.classList.contains('flipped') ||
                     card.classList.contains('matched')) {
                     return;
                 }
 
-                // 立即更新卡片状态
+                // 使用transform替代opacity来提高性能
                 requestAnimationFrame(() => {
                     card.classList.add('flipped');
                 });
 
                 if (card.dataset.symbol === '#f44336') { // 检查是否是目标红色
-                    // 立即标记为匹配
                     requestAnimationFrame(() => {
                         card.classList.add('matched');
                     });
@@ -892,36 +902,35 @@
                     this.score += 100;
                     this.updateScore();
 
-                    // 获取当前级别需要找到的红色方块数量
                     const currentLevel = this.levels[this.currentDifficulty];
                     if (this.foundFacai === currentLevel.facaiCount) {
-                        // 成功完成当前回合，提升难度
                         this.currentDifficulty = Math.min(this.currentDifficulty + 1, this.difficultySystem.maxDifficulty);
                         const nextLevel = this.levels[this.currentDifficulty];
                         this.previewText.textContent = `太棒了！难度提升到${nextLevel.grid}x${nextLevel.grid}，下一轮需要找出${nextLevel.facaiCount}个红色方块`;
                         
-                        setTimeout(() => this.levelComplete(true), 1000);
+                        // 使用Promise和requestAnimationFrame来优化动画
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        this.levelComplete(true);
                     }
                 } else {
-                    // 翻错牌，立即结束当前回合并降低难度
                     this.score = Math.max(0, this.score - 50);
                     this.updateScore();
                     
-                    // 降低难度
                     this.currentDifficulty = Math.max(this.currentDifficulty - 1, this.difficultySystem.minDifficulty);
                     const nextLevel = this.levels[this.currentDifficulty];
                     this.previewText.textContent = `翻错了！难度调整到${nextLevel.grid}x${nextLevel.grid}，下一轮需要找出${nextLevel.facaiCount}个红色方块`;
                     
-                    // 立即显示所有未找到的红色方块
+                    // 批量处理DOM更新
+                    const cardsToFlip = this.cards.filter(c => 
+                        c.dataset.symbol === '#f44336' && !c.classList.contains('matched')
+                    );
+                    
                     requestAnimationFrame(() => {
-                        this.cards.forEach(c => {
-                            if (c.dataset.symbol === '#f44336' && !c.classList.contains('matched')) {
-                                c.classList.add('flipped');
-                            }
-                        });
+                        cardsToFlip.forEach(c => c.classList.add('flipped'));
                     });
                     
-                    setTimeout(() => this.levelComplete(false), 2000);
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    this.levelComplete(false);
                 }
             }
 
